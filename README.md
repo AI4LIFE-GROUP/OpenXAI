@@ -5,6 +5,10 @@ We introduce OpenXAI, a general-purpose lightweight library that provides a comp
 
 
 
+## Licence
+
+OpenXAI is under the MIT Licence. See the [LICENCE]() for more details.
+
 ## Citation
 
 [TODO]
