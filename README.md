@@ -7,7 +7,7 @@ We introduce OpenXAI, a general-purpose lightweight library that provides a comp
 
 ## Licence
 
-OpenXAI is under the MIT Licence. See the [LICENCE]() for more details.
+OpenXAI is under the MIT Licence. See the [LICENCE](https://github.com/AI4LIFE-GROUP/OpenXAI/blob/main/LICENSE) for more details.
 
 ## Citation
 
