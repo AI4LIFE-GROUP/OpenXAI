@@ -6,7 +6,7 @@ from openxai.ML_Models.LR.model import LogisticRegression
 import openxai.dataloader as loaders
 
 
-def LoadModel(data_name, ml_model, pretrained=True):
+def LoadModel(data_name: str, ml_model, pretrained: bool = True):
     
     # obtain inputs to infer number of features
     if data_name == 'synthetic':
@@ -88,9 +88,23 @@ def LoadModel(data_name, ml_model, pretrained=True):
                 model_path = './openxai/ML_Models/Saved_Models/LR/german_lr_0.002_acc_0.72.pt'
                 model = LogisticRegression(input_dim=inputs.shape[1])
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
-    
+
+        elif data_name == 'heloc':
+            if ml_model == 'ann':
+                model_path = './ML_Models/Saved_Models/ANN/heloc_ann_0.002_acc_0.74.pt'
+                model = model_ann.ANN_softmax(input_layer=inputs.shape[1], hidden_layer_1=100, num_of_classes=2)
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            
+            elif ml_model == 'lr':
+                model_path = './ML_Models/Saved_Models/LR/heloc_lr_0.002_acc_0.72.pt'
+                model = LogisticRegression(input_dim=inputs.shape[1])
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        else:
+            raise NotImplementedError(
+                 'The current version of >LoadModel< does not support this data set.')
+            
     else:
         raise NotImplementedError(
-            'The current version of >LoadModel< does not support training a ML model from scratch, yet.')
+             'The current version of >LoadModel< does not support training a ML model from scratch, yet.')
 
     return model
