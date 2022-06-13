@@ -1,13 +1,7 @@
 import pandas as pd
 
 # Explanation Models
-from openxai.explainers import Gradient
-from openxai.explainers import IntegratedGradients
-from openxai.explainers import InputTimesGradient
-from openxai.explainers import SmoothGrad
-from openxai.explainers import LIME
-from openxai.explainers import SHAPExplainerC
-from openxai.explainers import RandomBaseline
+from openxai.Explainer import Explainer
 
 # Perturbation Methods
 from openxai.explainers.perturbation_methods import *
@@ -80,6 +74,7 @@ class ExperimentRunner():
                  feature_metadata,
                  random_seed = 0,
                  ig_baseline = None):
+        
         '''
         Class to evaluate explanation methods given a dataset and model.
         '''
@@ -94,52 +89,95 @@ class ExperimentRunner():
 
         # initialize explainers using parameters specified by config
         self.perturbation = perturbation
-        # for 'grad', we have to pass the absolute value parameter
-        grad = Gradient(model, absolute_value=grad_absolute_value)
-
-        # for 'ig', we have to specify a number of parameters
-        # compute the mean of the dataset as the default IG baseline
+        
+        # Vanilla Gradients
+        param_dict_grad = dict()
+        param_dict_grad['absolute_value'] = grad_absolute_value
+        grad = Explainer(method='grad',
+                         model=model,
+                         dataset_tensor=dataset_tensor,
+                         param_dict_grad=param_dict_grad)
+        
+        # Integrated Gradients
         if ig_baseline is None:
             ig_baseline = torch.mean(dataset_tensor, dim=0).reshape(1, -1).float()
-        ig = IntegratedGradients(model, method=ig_method, multiply_by_inputs=ig_multiply_by_inputs, baseline=ig_baseline)
-        # for 'input x gradient', we have to pass the label; this occurs at a later stage
-        itg = InputTimesGradient(model)
-        # for 'sg', we have to specify a number of parameters
-        sg003 = SmoothGrad(model, num_samples=sg_n_samples, standard_deviation=sg_standard_deviation_003)
-        sg005 = SmoothGrad(model, num_samples=sg_n_samples, standard_deviation=sg_standard_deviation_005)
-        sg01 = SmoothGrad(model, num_samples=sg_n_samples, standard_deviation=sg_standard_deviation_01)
-        # for 'ebp', we have to pass the label; this occurs at a later stage
-        # ebp = EBP(model)
-        # for 'lrp', we have to pass the label; this occurs at a later stage
-        # lrp = LRP(model)
-        shap = SHAPExplainerC(model, model_impl='torch', n_samples=shap_subset_size)
+        param_dict_ig = dict()
+        param_dict_ig['method'] = ig_method
+        param_dict_ig['multiply_by_inputs'] = ig_multiply_by_inputs
+        param_dict_ig['baseline'] = ig_baseline
+        ig = Explainer(method='ig',
+                       model=model,
+                       dataset_tensor=dataset_tensor,
+                       param_dict_ig=param_dict_ig)
         
-        # for 'lime', we have to specify a number of parameters
-        lime003 = LIME(model.predict, dataset_tensor, std=lime_standard_deviation_003, mode=lime_mode, sample_around_instance=lime_sample_around_instance,
-                    kernel_width=lime_kernel_width, n_samples=lime_n_samples,
-                    discretize_continuous=lime_discretize_continuous)
-        lime005 = LIME(model.predict, dataset_tensor, std=lime_standard_deviation_005, mode=lime_mode, sample_around_instance=lime_sample_around_instance,
-                    kernel_width=lime_kernel_width, n_samples=lime_n_samples,
-                    discretize_continuous=lime_discretize_continuous)
-        lime01 = LIME(model.predict, dataset_tensor, std=lime_standard_deviation_01, mode=lime_mode, sample_around_instance=lime_sample_around_instance,
-                    kernel_width=lime_kernel_width, n_samples=lime_n_samples,
-                    discretize_continuous=lime_discretize_continuous)
+        # Input x Gradient
+        itg = Explainer(method='itg',
+                        model=model,
+                        dataset_tensor=dataset_tensor)
         
-        control = RandomBaseline(model)
-
+        # Smoothgrad
+        param_dict_sg = dict()
+        param_dict_sg['n_samples'] = sg_n_samples
+        param_dict_sg['standard_deviation'] = sg_standard_deviation_005
+        sg005 = Explainer(method='sg',
+                          model=model,
+                          dataset_tensor=dataset_tensor,
+                          param_dict_sg=param_dict_sg)
+        param_dict_sg['standard_deviation'] = sg_standard_deviation_003
+        sg003 = Explainer(method='sg',
+                          model=model,
+                          dataset_tensor=dataset_tensor,
+                          param_dict_sg=param_dict_sg)
+        param_dict_sg['standard_deviation'] = sg_standard_deviation_01
+        sg01 = Explainer(method='sg',
+                         model=model,
+                         dataset_tensor=dataset_tensor,
+                         param_dict_sg=param_dict_sg)
+        
+        # Shap
+        param_dict_shap = dict()
+        param_dict_shap['subset_size'] = shap_subset_size
+        shap = Explainer(method='shap',
+                         model=model,
+                         dataset_tensor=dataset_tensor,
+                         param_dict_shap=param_dict_shap)
+        
+        # lime
+        param_dict_lime = dict()
+        param_dict_lime['dataset_tensor'] = dataset_tensor
+        param_dict_lime['std'] = lime_standard_deviation_003
+        param_dict_lime['mode'] = lime_mode
+        param_dict_lime['sample_around_instance'] = lime_sample_around_instance
+        param_dict_lime['kernel_width'] = lime_kernel_width
+        param_dict_lime['n_samples'] = lime_n_samples
+        param_dict_lime['discretize_continuous'] = lime_discretize_continuous
+        lime003 = Explainer(method='lime',
+                            model=model,
+                            dataset_tensor=dataset_tensor,
+                            param_dict_lime=param_dict_lime)
+        param_dict_lime['std'] = lime_standard_deviation_005
+        lime005 = Explainer(method='lime',
+                            model=model,
+                            dataset_tensor=dataset_tensor,
+                            param_dict_lime=param_dict_lime)
+        param_dict_lime['std'] = lime_standard_deviation_01
+        lime01 = Explainer(method='lime',
+                           model=model,
+                           dataset_tensor=dataset_tensor,
+                           param_dict_lime=param_dict_lime)
+        
+        # control
+        control = Explainer(method='control',
+                            model=model,
+                            dataset_tensor=dataset_tensor)
+        
         self.explainers_dict = {
             'grad': grad,
             'ig': ig,
             'itg': itg,
-            # 'sg003': sg003,
             'sg005': sg005,
-            # 'sg010': sg01,
-            # 'ebp': ebp,
-            # 'lrp': lrp,
             'shap': shap,
-            # 'lime003': lime003,
             'lime005': lime005,
-            # 'lime01': lime01
             'control': control
         }
         

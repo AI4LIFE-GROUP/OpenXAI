@@ -92,7 +92,9 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
         elif data_name == 'heloc':
             if ml_model == 'ann':
                 model_path = './ML_Models/Saved_Models/ANN/heloc_ann_0.002_acc_0.74.pt'
-                model = model_ann.ANN_softmax(input_layer=inputs.shape[1], hidden_layer_1=100, num_of_classes=2)
+                model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
+                                              hidden_layer_1=100,
+                                              num_of_classes=2)
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
             
             elif ml_model == 'lr':
