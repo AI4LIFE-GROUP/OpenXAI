@@ -114,7 +114,7 @@ class ANN_softmax(nn.Module):
         else:
             input = torch.squeeze(data).float()
         
-        return F.softmax(self.forward(input)).detach().numpy()
+        return self.forward(input).detach().numpy()
     
     def L_relu(self, data):
         

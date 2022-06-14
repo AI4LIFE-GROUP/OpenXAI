@@ -346,8 +346,10 @@ class ExperimentRunner():
         results = np.c_[np.array(stab_measures), np.array(methods),
                         np.array(denominator_distances), np.array(explanation_distances)]
         results = pd.DataFrame(results)
-        results.columns = ['Stability', 'Method',
-                           'Denominator Distance', 'Explanation Distance']
+        results.columns = ['Stability',
+                           'Method',
+                           'Denominator Distance',
+                           'Explanation Distance']
 
         if use_stability_threshold:
             version_str += '_thresholded'
