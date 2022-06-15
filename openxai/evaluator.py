@@ -261,8 +261,10 @@ class Evaluator():
         y_prbs = self.model(x.float())
         return torch.argmax(y_prbs, dim = 1)
 
-    def eval_relative_stability(self, x_prime_samples, exp_prime_samples, exp_at_input, rep_denominator_flag: bool = False,
-                                   use_threshold: bool = False):
+    def eval_relative_stability(self,
+                                x_prime_samples,
+                                exp_prime_samples,
+                                exp_at_input, rep_denominator_flag: bool = False):
         """ Approximates the maximum L-p distance between explanations in a neighborhood around
             input x.
 
@@ -296,23 +298,15 @@ class Evaluator():
 
             exp_diffs.append(explanation_diff)
 
-            if use_threshold:
-                threshold = self._compute_threshold(num_samples)
-
-                # only evaluate the stability metric for points x_prime with representations close to x
-                if rep_diff < threshold:
-                    stability_measure = explanation_diff
-                    stability_ratios.append(stability_measure)
+            if rep_denominator_flag:
+                # compute norm between representations
+                stability_measure = np.divide(explanation_diff, rep_diff)
             else:
-                if rep_denominator_flag:
-                    # compute norm between representations
-                    stability_measure = np.divide(explanation_diff, rep_diff)
-                else:
-                    feature_difference = self._compute_Lp_norm_diff(self.x, x_prime)
-                    stability_measure = np.divide(explanation_diff, feature_difference)
-                    x_diffs.append(self._compute_Lp_norm_diff(self.x, x_prime))
+                feature_difference = self._compute_Lp_norm_diff(self.x, x_prime)
+                stability_measure = np.divide(explanation_diff, feature_difference)
+                x_diffs.append(self._compute_Lp_norm_diff(self.x, x_prime))
 
-                stability_ratios.append(stability_measure)
+            stability_ratios.append(stability_measure)
                 
         ind_max = np.argmax(stability_ratios)
 

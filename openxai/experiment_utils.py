@@ -36,9 +36,20 @@ def generate_mask(explanation, top_k):
     return mask
 
 
-def dict_collector(index, Lmap, perturbation, labels, top_k, inputs, model,
-                   explanation_method, explanation, feature_metadata, eval_metric,
-                   max_distance=0.4, norm=2, masks=None):
+def dict_collector(index,
+                   Lmap,
+                   perturbation,
+                   labels,
+                   top_k,
+                   inputs,
+                   model,
+                   explanation_method,
+                   explanation,
+                   feature_metadata,
+                   eval_metric,
+                   max_distance=0.4,
+                   norm=2,
+                   masks=None):
 
     input_dict = dict()
     input_dict['x'] = inputs[index].reshape(-1)
@@ -72,7 +83,7 @@ class ExperimentRunner():
                  perturbation: BasePerturbation,
                  experiment_name_str: str,
                  feature_metadata,
-                 random_seed = 0,
+                 random_seed: int = 0,
                  ig_baseline = None):
         
         '''
@@ -209,8 +220,10 @@ class ExperimentRunner():
             
         return point_metadata
         
-    def get_explanations(self, inputs, labels,
-                            num_perturbations = 50):
+    def get_explanations(self,
+                         inputs,
+                         labels,
+                         num_perturbations = 50):
         """ Computes explanations for all methods in self.explainers_dict for all points in inputs.
             If the explanations have previously been computed, this method loads them from a file.
         """
@@ -311,9 +324,17 @@ class ExperimentRunner():
                     x_primes.append(sample['x'])
                     exp_primes.append(sample[key])
                 
-                input_dict = dict_collector(iter, self.Lmap, self.perturbation, self.labels, 3, self.inputs,
-                                            self.model, explanation_method=exp_method, explanation = exp_at_input,
-                                            feature_metadata=self.feature_metadata, eval_metric='eval_relative_stability')
+                input_dict = dict_collector(iter,
+                                            self.Lmap,
+                                            self.perturbation,
+                                            self.labels,
+                                            3,
+                                            self.inputs,
+                                            self.model,
+                                            explanation_method=exp_method,
+                                            explanation = exp_at_input,
+                                            feature_metadata=self.feature_metadata,
+                                            eval_metric='eval_relative_stability')
 
                 evaluator = Evaluator(input_dict)
 
