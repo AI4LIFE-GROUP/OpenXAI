@@ -16,8 +16,9 @@ class Evaluator():
         self.labels = labels
         self.model = model
         self.explainer = explainer
-        self.gt_feature_importances = self.model.return_ground_truth_importance(self.inputs)
-        self.explanation_x_f = self.input_dict['explanation_x'] #self._compute_flattened_explanation_for_predicted_label()
+        if hasattr(model, 'return_ground_truth_importance'):
+            self.gt_feature_importances = self.model.return_ground_truth_importance(self.inputs)
+        self.explanation_x_f = self.input_dict['explanation_x']
         self.y_pred = self.input_dict['y_pred']
 
     def _compute_flattened_explanation_for_predicted_label(self) -> np.ndarray:
@@ -29,6 +30,9 @@ class Evaluator():
     def evaluate(self, metric: str):
         """Explanation evaluation of a given metric
         """
+        if not hasattr(self.model, 'return_ground_truth_importance') and metric in ['PRA', 'RC', 'FA', 'RA', 'SA', 'SRA']:
+            raise ValueError("This chosen metric is incompatible with non-linear models.")
+
         # Pairwise rank agreement
         if metric == 'PRA':
             scores, average_score = self.pairwise_comp()
@@ -440,6 +444,7 @@ class Evaluator():
             # For each perturbation, calculate the explanation
             exp_prime_samples = torch.zeros_like(x_prime_samples)
             for it, x_prime in enumerate(x_prime_samples):
+                x_prime = x_prime.reshape(1, -1)
                 lab = y_prime_preds[it].type(torch.int64)
                 exp = self.explainer.get_explanation(x_prime.float(), label=lab)
                 exp_prime_samples[it, :] = exp

@@ -26,7 +26,6 @@ class LogisticRegression(nn.Module):
     def forward(self, x):
         return F.softmax(self.linear(x), dim=1)
     
-    
     def predict(self, data):
         """
         predict method for CFE-Models which need this method.

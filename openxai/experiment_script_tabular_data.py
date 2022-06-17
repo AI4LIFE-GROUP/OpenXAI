@@ -27,7 +27,7 @@ tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
 
 def main():
-    data_names = ['synthetic']
+    data_names = ['german']
     model_names = ['lr', 'ann']
     
     """
@@ -35,25 +35,25 @@ def main():
     """
     
     for model_name in model_names:
-        
         print('Classifier:', model_name)
-        
         for data_name in data_names:
-        
             print(' Dataset:', data_name)
-        
             # COMPAS feature types
             if data_name == 'compas':
                 feature_types = ['c', 'd', 'c', 'c', 'd', 'd', 'd']
-            
             # Adult feature types
             elif data_name == 'adult':
-                feature_types = ['c', 'c', 'c', 'c', 'c', 'c', 'd', 'd', 'd', 'd', 'd', 'd', 'd']
-            
+                feature_types = ['c'] * 6 + ['d'] * 7
             # Gaussian feature types
             elif data_name == 'synthetic':
-                feature_types = ['c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c',
-                                 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c']
+                feature_types = ['c'] * 20
+            # Heloc feature types
+            elif data_name == 'heloc':
+                feature_types = ['c'] * 23
+            elif data_name == 'german':
+                feature_types = pickle.load(open('./data/German_Credit_Data/german-feature-metadata.p', 'rb'))
+            else:
+                raise ValueError("Additional data sets will be included soon.")
             
             '''
             GET DATA LOADERS
@@ -106,7 +106,7 @@ def main():
                 L_map = model.linear
             else:
                 raise ValueError("Additional ML models will be supported soon.")
-            
+
             """
             LOOP OVER EXPERIMENT SETUPS
             """
