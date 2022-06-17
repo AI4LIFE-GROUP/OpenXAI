@@ -2,11 +2,11 @@ import numpy as np
 import torch
 from scipy.stats import pearsonr, rankdata
 import itertools
-from math import comb
+from scipy.special import comb
 import pandas as pd
 
 
-class Evaluator:
+class Evaluator():
     """ Metrics to evaluate an explanation method.
     """
 
@@ -17,7 +17,7 @@ class Evaluator:
         self.model = model
         self.explainer = explainer
         self.gt_feature_importances = self.model.return_ground_truth_importance(self.inputs)
-        self.explanation_x_f = self._compute_flattened_explanation_for_predicted_label()
+        self.explanation_x_f = self.input_dict['explanation_x'] #self._compute_flattened_explanation_for_predicted_label()
         self.y_pred = self.input_dict['y_pred']
 
     def _compute_flattened_explanation_for_predicted_label(self) -> np.ndarray:
@@ -51,7 +51,7 @@ class Evaluator:
             return scores, average_score
         # Signed Rank Agreement
         elif metric == 'SRA':
-            scores, average_score = self.agreement_fraction(metric='signrank')
+            scores, average_score = self.agreement_fraction(metric='ranksign')
             return scores, average_score
         # Prediction Gap on Important Features
         elif metric == 'PGI':
@@ -141,7 +141,8 @@ class Evaluator:
 
         attrA = self.gt_feature_importances.detach().numpy().reshape(1, -1)
         attrB = self.explanation_x_f.detach().numpy().reshape(1, -1)
-        k = self.top_k
+        k = self.input_dict['top_k']
+        
         if metric is None:
             metric_type = self.input_dict['eval_metric']
         else:
@@ -162,29 +163,31 @@ class Evaluator:
         topk_signB = np.take_along_axis(np.sign(attrB), topk_idB, axis=1)
 
         # overlap agreement = (# topk features in common)/k
-        if metric_type=='overlap':
+        if metric_type == 'overlap':
             topk_setsA = [set(row) for row in topk_idA]
             topk_setsB = [set(row) for row in topk_idB]
             # check if: same id
             metric_distr = np.array([len(setA.intersection(setB))/k for setA, setB in zip(topk_setsA, topk_setsB)])
 
         # rank agreement
-        elif metric_type=='rank':
+        elif metric_type == 'rank':
             topk_idA_df = pd.DataFrame(topk_idA).applymap(str)  # id
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
             topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str)  # rank (accounting for ties)
             topk_ranksB_df = pd.DataFrame(topk_ranksB).applymap(str)
+            
             #check if: same id + rank
             topk_id_ranksA_df = ('feat' + topk_idA_df) + ('rank' + topk_ranksA_df)
             topk_id_ranksB_df = ('feat' + topk_idB_df) + ('rank' + topk_ranksB_df)
             metric_distr = (topk_id_ranksA_df == topk_id_ranksB_df).sum(axis=1).to_numpy()/k
 
         # sign agreement
-        elif metric_type=='sign':
+        elif metric_type == 'sign':
             topk_idA_df = pd.DataFrame(topk_idA).applymap(str)  # id (contains rank info --> order of features in columns)
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
             topk_signA_df = pd.DataFrame(topk_signA).applymap(str)  # sign
             topk_signB_df = pd.DataFrame(topk_signB).applymap(str)
+            
             #check if: same id + sign
             topk_id_signA_df = ('feat' + topk_idA_df) + ('sign' + topk_signA_df)  # id + sign (contains rank info --> order of features in columns)
             topk_id_signB_df = ('feat' + topk_idB_df) + ('sign' + topk_signB_df)
@@ -193,17 +196,21 @@ class Evaluator:
             metric_distr = np.array([len(setA.intersection(setB))/k for setA, setB in zip(topk_id_signA_sets, topk_id_signB_sets)])
 
         # rank and sign agreement
-        elif metric_type=='ranksign':
+        elif metric_type == 'ranksign':
             topk_idA_df = pd.DataFrame(topk_idA).applymap(str)  # id
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
             topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str)  # rank (accounting for ties)
             topk_ranksB_df = pd.DataFrame(topk_ranksB).applymap(str)
             topk_signA_df = pd.DataFrame(topk_signA).applymap(str)  # sign
             topk_signB_df = pd.DataFrame(topk_signB).applymap(str)
+            
             # check if: same id + rank + sign
             topk_id_ranks_signA_df = ('feat' + topk_idA_df) + ('rank' + topk_ranksA_df) + ('sign' + topk_signA_df)
             topk_id_ranks_signB_df = ('feat' + topk_idB_df) + ('rank' + topk_ranksB_df) + ('sign' + topk_signB_df)
             metric_distr = (topk_id_ranks_signA_df == topk_id_ranks_signB_df).sum(axis=1).to_numpy()/k
+        
+        else:
+            raise NotImplementedError("Please make sure that have chosen one of the following metrics: {ranksign, rank, overlap, sign}.")
 
         return metric_distr, np.mean(metric_distr)
 
@@ -388,14 +395,14 @@ class Evaluator:
             x: single input of shape (0, d) with d features.
         """
         y_prbs = self.model(x.float())
-        return torch.argmax(y_prbs, dim = 1)
+        return torch.argmax(y_prbs, dim=1)
 
     def eval_relative_stability(self,
-                                exp_at_input,
                                 x_prime_samples=None,
                                 exp_prime_samples=None,
                                 rep_denominator_flag: bool = False,
-                                num_samples: int = 100):
+                                num_samples: int = 1000,
+                                num_perturbations: int = 50):
         """ Approximates the maximum L-p distance between explanations in a neighborhood around
             input x.
 
@@ -404,6 +411,7 @@ class Evaluator:
                 between representations (instead of features).
 
         """
+        exp_at_input = self.explanation_x_f
         self._parse_and_check_input(eval_metric='eval_relative_stability')
 
         stability_ratios = []
@@ -411,14 +419,31 @@ class Evaluator:
         x_diffs = []
         exp_diffs = []
         
-        # get perturbations of instance x
+        # get perturbations of instance x, and for each perturbed instance compute an explanation
         if x_prime_samples is None:
+            # Perturb input
             x_prime_samples = self.perturb_method.get_perturbed_inputs(original_sample=self.x,
                                                                        feature_mask=self.top_k_mask,
                                                                        num_samples=num_samples,
                                                                        max_distance=self.perturb_max_distance,
                                                                        feature_metadata=self.feature_metadata)
 
+            # Take the first num_perturbations points that have the same predicted class label
+            y_prime_preds = self._get_predicted_class(x_prime_samples)
+
+            ind_same_class = (y_prime_preds == self.y_pred).nonzero()[: num_perturbations].squeeze()
+            x_prime_samples = torch.index_select(input=x_prime_samples,
+                                                 dim=0,
+                                                 index=ind_same_class)
+            y_prime_preds = self._get_predicted_class(x_prime_samples)
+
+            # For each perturbation, calculate the explanation
+            exp_prime_samples = torch.zeros_like(x_prime_samples)
+            for it, x_prime in enumerate(x_prime_samples):
+                lab = y_prime_preds[it].type(torch.int64)
+                exp = self.explainer.get_explanation(x_prime.float(), label=lab)
+                exp_prime_samples[it, :] = exp
+            
         for sample_ind, x_prime in enumerate(x_prime_samples):
             x_prime = x_prime.unsqueeze(0)
 

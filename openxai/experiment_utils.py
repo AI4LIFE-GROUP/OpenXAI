@@ -254,17 +254,20 @@ class ExperimentRunner():
                 perturbation_metadata = []
                 
                 # Perturb all inputs
-                x_prime_samples = self.perturbation.get_perturbed_inputs(original_sample = x,
-                                                           feature_mask = torch.zeros(x.shape, dtype=torch.bool),
-                                                           num_samples = 1000,
-                                                           max_distance = perturbation_max_distance,
-                                                           feature_metadata = self.feature_metadata)
+                x_prime_samples = self.perturbation.get_perturbed_inputs(original_sample=x,
+                                                                         feature_mask=torch.zeros(x.shape,
+                                                                                                  dtype=torch.bool),
+                                                                         num_samples=1000,
+                                                                         max_distance=perturbation_max_distance,
+                                                                         feature_metadata=self.feature_metadata)
                 
                 # Take the first num_perturbations points that have the same predicted class label
                 y_prime_preds = self._get_predicted_class(x_prime_samples)
                 
                 ind_same_class = (y_prime_preds == y_pred).nonzero()[: num_perturbations].squeeze()
-                x_prime_samples = torch.index_select(input = x_prime_samples, dim = 0, index = ind_same_class)
+                x_prime_samples = torch.index_select(input=x_prime_samples,
+                                                     dim=0,
+                                                     index=ind_same_class)
                 
                 
                 # For each perturbation, calculate the explanation

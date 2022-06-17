@@ -43,4 +43,3 @@ class LogisticRegression(nn.Module):
         return output
 
 
-    

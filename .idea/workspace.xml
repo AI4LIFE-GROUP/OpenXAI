@@ -3,10 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="bc6adba1-3e17-4ec0-aad7-38636299eead" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpenXAI quickstart.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/OpenXAI quickstart.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/openxai/ML_Models/LR/model.py" beforeDir="false" afterPath="$PROJECT_DIR$/openxai/ML_Models/LR/model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/openxai/dgp_synthetic.py" beforeDir="false" afterPath="$PROJECT_DIR$/openxai/dgp_synthetic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/openxai/evaluator.py" beforeDir="false" afterPath="$PROJECT_DIR$/openxai/evaluator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/openxai/evaluator_final.py" beforeDir="false" afterPath="$PROJECT_DIR$/openxai/evaluator_final.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/openxai/experiment_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/openxai/experiment_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/quickstart.ipynb" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,8 +21,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/openxai/experiment_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2811">
-              <caret line="370" column="36" lean-forward="true" selection-start-line="370" selection-start-column="36" selection-end-line="370" selection-end-column="36" />
+            <state relative-caret-position="600">
+              <caret line="264" column="46" selection-start-line="264" selection-end-line="265" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -41,43 +43,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/openxai/Explainer.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1100">
-              <caret line="15" column="20" lean-forward="true" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
-              <folding>
-                <element signature="e#8#20#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/openxai/dataloader.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="176" column="6" lean-forward="true" selection-start-line="176" selection-start-column="6" selection-end-line="176" selection-end-column="6" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/openxai/experiment_config.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="350">
-              <caret line="14" column="24" lean-forward="true" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/openxai/experiment_script_tabular_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="126" column="37" selection-start-line="126" selection-start-column="37" selection-end-line="126" selection-end-column="37" />
+            <state relative-caret-position="3155">
+              <caret line="146" column="19" selection-start-line="146" selection-start-column="19" selection-end-line="146" selection-end-column="19" />
               <folding>
                 <element signature="e#9#48#0" expanded="true" />
               </folding>
@@ -86,10 +55,31 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/openxai/ML_Models/LR/model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="725">
+              <caret line="45" selection-start-line="45" selection-end-line="45" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/openxai/experiment_config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="950">
+              <caret line="38" column="19" selection-start-line="38" selection-end-line="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/openxai/LoadModel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2300">
-              <caret line="92" column="27" selection-start-line="92" selection-start-column="27" selection-end-line="92" selection-end-column="27" />
+            <state relative-caret-position="750">
+              <caret line="111" column="16" selection-start-line="111" selection-start-column="16" selection-end-line="111" selection-end-column="16" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -100,8 +90,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/openxai/evaluator_final.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3550">
-              <caret line="215" column="26" lean-forward="true" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="26" />
+            <state relative-caret-position="475">
+              <caret line="445" column="12" selection-start-line="445" selection-start-column="12" selection-end-line="445" selection-end-column="12" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -112,8 +102,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/openxai/evaluator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="266" column="47" selection-start-line="266" selection-start-column="47" selection-end-line="266" selection-end-column="47" />
+            <state relative-caret-position="-2950">
+              <caret line="15" column="36" selection-start-line="15" selection-start-column="36" selection-end-line="15" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -131,6 +121,20 @@
     <findStrings>
       <find>download</find>
       <find>comb</find>
+      <find>input_dict</find>
+      <find>perturbation</find>
+      <find>genera</find>
+      <find>generate_mask</find>
+      <find>top_k</find>
+      <find>sra</find>
+      <find>signrank</find>
+      <find>feature_meta</find>
+      <find>max_dist</find>
+      <find>raise</find>
+      <find>PGU</find>
+      <find>max_di</find>
+      <find>sample_ind</find>
+      <find>perturbation_max_distance</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -141,12 +145,13 @@
       <list>
         <option value="$PROJECT_DIR$/openxai/explainers/perturbation_methods.py" />
         <option value="$PROJECT_DIR$/openxai/experiment_script_tabular_data.py" />
-        <option value="$PROJECT_DIR$/openxai/dgp_synthetic.py" />
         <option value="$PROJECT_DIR$/openxai/dataloader.py" />
         <option value="$PROJECT_DIR$/openxai/LoadModel.py" />
         <option value="$PROJECT_DIR$/openxai/experiment_config.py" />
         <option value="$PROJECT_DIR$/openxai/Explainer.py" />
         <option value="$PROJECT_DIR$/openxai/ML_Models/ANN/model.py" />
+        <option value="$PROJECT_DIR$/openxai/dgp_synthetic.py" />
+        <option value="$PROJECT_DIR$/openxai/ML_Models/LR/model.py" />
         <option value="$PROJECT_DIR$/openxai/evaluator.py" />
         <option value="$PROJECT_DIR$/openxai/experiment_utils.py" />
         <option value="$PROJECT_DIR$/openxai/evaluator_final.py" />
@@ -175,6 +180,19 @@
               <item name="OpenXAI" type="b2602c69:ProjectViewProjectNode" />
               <item name="OpenXAI" type="462c0819:PsiDirectoryNode" />
               <item name="openxai" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="OpenXAI" type="b2602c69:ProjectViewProjectNode" />
+              <item name="OpenXAI" type="462c0819:PsiDirectoryNode" />
+              <item name="openxai" type="462c0819:PsiDirectoryNode" />
+              <item name="ML_Models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="OpenXAI" type="b2602c69:ProjectViewProjectNode" />
+              <item name="OpenXAI" type="462c0819:PsiDirectoryNode" />
+              <item name="openxai" type="462c0819:PsiDirectoryNode" />
+              <item name="ML_Models" type="462c0819:PsiDirectoryNode" />
+              <item name="LR" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -237,12 +255,12 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17963752" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17963752" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32981783" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.31543624" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.08342362" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39980826" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -282,10 +300,66 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/explainers/catalog/lime/lime.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1194">
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/dataloader.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="18" column="12" selection-start-line="18" selection-start-column="12" selection-end-line="18" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/openxai/dgp_synthetic.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2825">
-          <caret line="113" column="4" selection-start-line="113" selection-start-column="4" selection-end-line="113" selection-end-column="4" />
+        <state relative-caret-position="575">
+          <caret line="98" column="42" lean-forward="true" selection-start-line="98" selection-start-column="42" selection-end-line="98" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/Explainer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1100">
+          <caret line="15" column="20" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
+          <folding>
+            <element signature="e#8#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/experiment_config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="950">
+          <caret line="38" column="19" selection-start-line="38" selection-end-line="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/ML_Models/LR/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="725">
+          <caret line="45" selection-start-line="45" selection-end-line="45" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/openxai/LoadModel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="750">
+          <caret line="111" column="16" selection-start-line="111" selection-start-column="16" selection-end-line="111" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -299,83 +373,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/explainers/catalog/lime/lime.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1194">
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/LoadModel.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2300">
-          <caret line="92" column="27" selection-start-line="92" selection-start-column="27" selection-end-line="92" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/openxai/experiment_script_tabular_data.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="126" column="37" selection-start-line="126" selection-start-column="37" selection-end-line="126" selection-end-column="37" />
+        <state relative-caret-position="3155">
+          <caret line="146" column="19" selection-start-line="146" selection-start-column="19" selection-end-line="146" selection-end-column="19" />
           <folding>
             <element signature="e#9#48#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/experiment_config.py">
+    <entry file="file://$PROJECT_DIR$/openxai/evaluator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="14" column="24" lean-forward="true" selection-start-line="14" selection-start-column="24" selection-end-line="14" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/dataloader.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="176" column="6" lean-forward="true" selection-start-line="176" selection-start-column="6" selection-end-line="176" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/Explainer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1100">
-          <caret line="15" column="20" lean-forward="true" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
-          <folding>
-            <element signature="e#8#20#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="-2950">
+          <caret line="15" column="36" selection-start-line="15" selection-start-column="36" selection-end-line="15" selection-end-column="36" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/openxai/experiment_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2811">
-          <caret line="370" column="36" lean-forward="true" selection-start-line="370" selection-start-column="36" selection-end-line="370" selection-end-column="36" />
+        <state relative-caret-position="600">
+          <caret line="264" column="46" selection-start-line="264" selection-end-line="265" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/openxai/evaluator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="266" column="47" selection-start-line="266" selection-start-column="47" selection-end-line="266" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/openxai/evaluator_final.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3550">
-          <caret line="215" column="26" lean-forward="true" selection-start-line="215" selection-start-column="26" selection-end-line="215" selection-end-column="26" />
+        <state relative-caret-position="475">
+          <caret line="445" column="12" selection-start-line="445" selection-start-column="12" selection-end-line="445" selection-end-column="12" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
