@@ -29,31 +29,34 @@ class Evaluator():
     def _eval(self, metric: str):
         """Explanation evaluation of a given metric
         """
-        if metric == 'PRA':
+        self.metric = metric
+
+        if self.metric == 'PRA':
             return self._pairwise_comp()   
 
-        elif metric == 'RC':
+        elif self.metric == 'RC':
             return self._rankcorr()
 
-        elif metric == 'FA': 
+        elif self.metric == 'FA': 
             return self._   
-        elif metric == 'RA':
 
-        elif metric == 'SA':
+        elif self.metric == 'RA':
 
-        elif metric == 'SRA':
+        elif self.metric == 'SA':
 
-        elif metric == 'PGI':
+        elif self.metric == 'SRA':
 
-        elif metric == 'PGU':
+        elif self.metric == 'PGI':
 
-        elif metric == 'RIS':
+        elif self.metric == 'PGU':
 
-        elif metric == 'RRS':
+        elif self.metric == 'RIS':
 
-        elif metric == 'ROS':
+        elif self.metric == 'RRS':
 
-        elif metric == 'DIS':
+        elif self.metric == 'ROS':
+
+        elif self.metric == 'DIS':
 
         else:
             raise NotImplementedError("This metric is not implemented in this OpenXAI version.")
@@ -119,67 +122,82 @@ class Evaluator():
         return pairwise_distr, np.mean(pairwise_distr)
 
 
-    def agreement_fraction(self):
+    def _agreement_fraction(self):
 
         attrA = self.gt_feature_importances.detach().numpy().reshape(1, -1)
         attrB = self.explanation_x_f.detach().numpy().reshape(1, -1)
         k = self.top_k
-        metric_type = self.input_dict['eval_metric']
 
-        #id of top-k features
+        # id of top-k features
         topk_idA = np.argsort(-np.abs(attrA), axis=1)[:, 0:k]
         topk_idB = np.argsort(-np.abs(attrB), axis=1)[:, 0:k]
 
-        #rank of top-k features --> manually calculate rankings (instead of using 0, 1, ..., k ranking based on argsort output) to account for ties
-        all_feat_ranksA = rankdata(-np.abs(attrA), method='dense', axis=1) #rankdata gives rank1 for smallest # --> we want rank1 for largest # (aka # with largest magnitude)
+        # rank of top-k features --> manually calculate rankings (instead of using 0, 1, ..., k ranking based on argsort output) to account for ties
+        # rankdata gives rank1 for smallest # --> we want rank1 for largest # (aka # with largest magnitude)
+        all_feat_ranksA = rankdata(-np.abs(attrA), method='dense', axis=1)
         all_feat_ranksB = rankdata(-np.abs(attrB), method='dense', axis=1)
         topk_ranksA = np.take_along_axis(all_feat_ranksA, topk_idA, axis=1)
         topk_ranksB = np.take_along_axis(all_feat_ranksB, topk_idB, axis=1)
 
-        #sign of top-k features
+        # sign of top-k features
         topk_signA = np.take_along_axis(np.sign(attrA), topk_idA, axis=1)  #pos=1; neg=-1
         topk_signB = np.take_along_axis(np.sign(attrB), topk_idB, axis=1)
 
-        #overlap agreement = (# topk features in common)/k
-        if metric_type=='overlap':
+        # overlap agreement = (# topk features in common)/k
+        if self.metric == 'FA':
             topk_setsA = [set(row) for row in topk_idA]
             topk_setsB = [set(row) for row in topk_idB]
-            #check if: same id
+            # check if: same id
             metric_distr = np.array([len(setA.intersection(setB))/k for setA, setB in zip(topk_setsA, topk_setsB)])
 
-        #rank agreement
-        elif metric_type=='rank':
+        # rank agreement
+        elif self.metric == 'RA':
             topk_idA_df = pd.DataFrame(topk_idA).applymap(str) #id
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
-            topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str) #rank (accounting for ties)
+            
+            # rank (accounting for ties)
+            topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str)  
             topk_ranksB_df = pd.DataFrame(topk_ranksB).applymap(str)
-            #check if: same id + rank
+
+            # check if: same id + rank
             topk_id_ranksA_df = ('feat' + topk_idA_df) + ('rank' + topk_ranksA_df)
             topk_id_ranksB_df = ('feat' + topk_idB_df) + ('rank' + topk_ranksB_df)
             metric_distr = (topk_id_ranksA_df == topk_id_ranksB_df).sum(axis=1).to_numpy()/k
 
-        #sign agreement
-        elif metric_type=='sign':
-            topk_idA_df = pd.DataFrame(topk_idA).applymap(str) #id (contains rank info --> order of features in columns)
+        # sign agreement
+        elif metric_type=='SA':
+            # id (contains rank info --> order of features in columns)
+            topk_idA_df = pd.DataFrame(topk_idA).applymap(str)
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
             topk_signA_df = pd.DataFrame(topk_signA).applymap(str) #sign
             topk_signB_df = pd.DataFrame(topk_signB).applymap(str)
-            #check if: same id + sign
-            topk_id_signA_df = ('feat' + topk_idA_df) + ('sign' + topk_signA_df) #id + sign (contains rank info --> order of features in columns)
+
+            # check if: same id + sign
+            # id + sign (contains rank info --> order of features in columns)
+            topk_id_signA_df = ('feat' + topk_idA_df) + ('sign' + topk_signA_df)
             topk_id_signB_df = ('feat' + topk_idB_df) + ('sign' + topk_signB_df)
-            topk_id_signA_sets = [set(row) for row in topk_id_signA_df.to_numpy()] #id + sign (remove order info --> by converting to sets)
+
+            # id + sign (remove order info --> by converting to sets)
+            topk_id_signA_sets = [set(row) for row in topk_id_signA_df.to_numpy()]
             topk_id_signB_sets = [set(row) for row in topk_id_signB_df.to_numpy()]
             metric_distr = np.array([len(setA.intersection(setB))/k for setA, setB in zip(topk_id_signA_sets, topk_id_signB_sets)])
 
-        #rank and sign agreement
-        elif metric_type=='ranksign':
-            topk_idA_df = pd.DataFrame(topk_idA).applymap(str) #id
+        # rank and sign agreement
+        elif metric_type=='RSA':
+
+            # id
+            topk_idA_df = pd.DataFrame(topk_idA).applymap(str)
             topk_idB_df = pd.DataFrame(topk_idB).applymap(str)
-            topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str) #rank (accounting for ties)
+            
+            # rank (accounting for ties)
+            topk_ranksA_df = pd.DataFrame(topk_ranksA).applymap(str)
             topk_ranksB_df = pd.DataFrame(topk_ranksB).applymap(str)
-            topk_signA_df = pd.DataFrame(topk_signA).applymap(str) #sign
+
+            # sign
+            topk_signA_df = pd.DataFrame(topk_signA).applymap(str)
             topk_signB_df = pd.DataFrame(topk_signB).applymap(str)
-            #check if: same id + rank + sign
+
+            # check if: same id + rank + sign
             topk_id_ranks_signA_df = ('feat' + topk_idA_df) + ('rank' + topk_ranksA_df) + ('sign' + topk_signA_df)
             topk_id_ranks_signB_df = ('feat' + topk_idB_df) + ('rank' + topk_ranksB_df) + ('sign' + topk_signB_df)
             metric_distr = (topk_id_ranks_signA_df == topk_id_ranks_signB_df).sum(axis=1).to_numpy()/k
