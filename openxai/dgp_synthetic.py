@@ -1,8 +1,17 @@
 import numpy as np
 class generate_gaussians:
     
-    def __init__(self, n_samples=10000, dimensions=20, n_clusters=100, distance_to_center=5, test_size=0.25,
-                 upper_weight=1, lower_weight=-1, seed=567, correlation_matrix=None, sparsity=0.5):
+    def __init__(self,
+                 n_samples=10000,
+                 dimensions=20,
+                 n_clusters=100,
+                 distance_to_center=5,
+                 test_size=0.25,
+                 upper_weight=1,
+                 lower_weight=-1,
+                 seed=567,
+                 correlation_matrix=None,
+                 sparsity=0.5):
         '''
         :param n_samples: int; # samples per cluster
         :param dim: int; # dimensions

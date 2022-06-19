@@ -36,9 +36,20 @@ def generate_mask(explanation, top_k):
     return mask
 
 
-def dict_collector(index, Lmap, perturbation, labels, top_k, inputs, model,
-                   explanation_method, explanation, feature_metadata, eval_metric,
-                   max_distance=0.4, norm=2, masks=None):
+def dict_collector(index,
+                   Lmap,
+                   perturbation,
+                   labels,
+                   top_k,
+                   inputs,
+                   model,
+                   explanation_method,
+                   explanation,
+                   feature_metadata,
+                   eval_metric,
+                   max_distance=0.4,
+                   norm=2,
+                   masks=None):
 
     input_dict = dict()
     input_dict['x'] = inputs[index].reshape(-1)
@@ -72,7 +83,7 @@ class ExperimentRunner():
                  perturbation: BasePerturbation,
                  experiment_name_str: str,
                  feature_metadata,
-                 random_seed = 0,
+                 random_seed: int = 0,
                  ig_baseline = None):
         
         '''
@@ -209,8 +220,10 @@ class ExperimentRunner():
             
         return point_metadata
         
-    def get_explanations(self, inputs, labels,
-                            num_perturbations = 50):
+    def get_explanations(self,
+                         inputs,
+                         labels,
+                         num_perturbations = 50):
         """ Computes explanations for all methods in self.explainers_dict for all points in inputs.
             If the explanations have previously been computed, this method loads them from a file.
         """
@@ -241,17 +254,20 @@ class ExperimentRunner():
                 perturbation_metadata = []
                 
                 # Perturb all inputs
-                x_prime_samples = self.perturbation.get_perturbed_inputs(original_sample = x,
-                                                           feature_mask = torch.zeros(x.shape, dtype=torch.bool),
-                                                           num_samples = 1000,
-                                                           max_distance = perturbation_max_distance,
-                                                           feature_metadata = self.feature_metadata)
+                x_prime_samples = self.perturbation.get_perturbed_inputs(original_sample=x,
+                                                                         feature_mask=torch.zeros(x.shape,
+                                                                                                  dtype=torch.bool),
+                                                                         num_samples=1000,
+                                                                         max_distance=perturbation_max_distance,
+                                                                         feature_metadata=self.feature_metadata)
                 
                 # Take the first num_perturbations points that have the same predicted class label
                 y_prime_preds = self._get_predicted_class(x_prime_samples)
                 
                 ind_same_class = (y_prime_preds == y_pred).nonzero()[: num_perturbations].squeeze()
-                x_prime_samples = torch.index_select(input = x_prime_samples, dim = 0, index = ind_same_class)
+                x_prime_samples = torch.index_select(input=x_prime_samples,
+                                                     dim=0,
+                                                     index=ind_same_class)
                 
                 
                 # For each perturbation, calculate the explanation
@@ -311,9 +327,17 @@ class ExperimentRunner():
                     x_primes.append(sample['x'])
                     exp_primes.append(sample[key])
                 
-                input_dict = dict_collector(iter, self.Lmap, self.perturbation, self.labels, 3, self.inputs,
-                                            self.model, explanation_method=exp_method, explanation = exp_at_input,
-                                            feature_metadata=self.feature_metadata, eval_metric='eval_relative_stability')
+                input_dict = dict_collector(iter,
+                                            self.Lmap,
+                                            self.perturbation,
+                                            self.labels,
+                                            3,
+                                            self.inputs,
+                                            self.model,
+                                            explanation_method=exp_method,
+                                            explanation = exp_at_input,
+                                            feature_metadata=self.feature_metadata,
+                                            eval_metric='eval_relative_stability')
 
                 evaluator = Evaluator(input_dict)
 
@@ -346,8 +370,10 @@ class ExperimentRunner():
         results = np.c_[np.array(stab_measures), np.array(methods),
                         np.array(denominator_distances), np.array(explanation_distances)]
         results = pd.DataFrame(results)
-        results.columns = ['Stability', 'Method',
-                           'Denominator Distance', 'Explanation Distance']
+        results.columns = ['Stability',
+                           'Method',
+                           'Denominator Distance',
+                           'Explanation Distance']
 
         if use_stability_threshold:
             version_str += '_thresholded'

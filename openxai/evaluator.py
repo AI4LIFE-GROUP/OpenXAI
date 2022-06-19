@@ -6,7 +6,7 @@ from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_sc
 from scipy import stats
 
 
-class Evaluator():
+class Evaluator:
     """ Metrics to evaluate an explanation method.
     """
 
@@ -46,9 +46,13 @@ class Evaluator():
             self.explanation_x = self.input_dict['explanation_x']
         '''
         # input x
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability',
-                           'eval_counterfactual_fairness', 'eval_group_fairness',
-                           'eval_gt_similarity', 'eval_gt_rank', 'eval_gt_f1k']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_counterfactual_fairness',
+                           'eval_group_fairness',
+                           'eval_gt_similarity',
+                           'eval_gt_rank',
+                           'eval_gt_f1k']:
             if not 'x' in self.input_dict:
                 raise ValueError('Missing key of x')
             self.x = self.input_dict['x']
@@ -60,37 +64,54 @@ class Evaluator():
             self.y = self.input_dict['y']
 
         # input y_pred
-        if eval_metric in ['eval_relative_stability', 'eval_gt_similarity', 'eval_gt_rank', 'eval_gt_f1k']:
+        if eval_metric in ['eval_relative_stability',
+                           'eval_gt_similarity',
+                           'eval_gt_rank',
+                           'eval_gt_f1k']:
             if not 'y_pred' in self.input_dict:
                 raise ValueError('Missing key of y_pred')
             self.y_pred = self.input_dict['y_pred']
 
         # predictive model
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability', 'eval_group_fairness', 'eval_gt_similarity','eval_gt_rank', 'eval_gt_f1k']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_group_fairness',
+                           'eval_gt_similarity',
+                           'eval_gt_rank',
+                           'eval_gt_f1k']:
             if not 'model' in self.input_dict:
                 raise ValueError('Missing key of model')
             self.model = self.input_dict['model']
 
         # callable explainer class
-        if eval_metric in ['eval_relative_stability', 'eval_group_fairness', 'eval_gt_similarity', 'eval_gt_rank', 'eval_gt_f1k']:
+        if eval_metric in ['eval_relative_stability',
+                           'eval_group_fairness',
+                           'eval_gt_similarity',
+                           'eval_gt_rank',
+                           'eval_gt_f1k']:
             if not 'explainer' in self.input_dict:
                 raise ValueError('Missing key of explainer')
             self.explainer = self.input_dict['explainer']
 
         # top-K parameter K
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability', 'eval_group_fairness', 'eval_gt_f1k']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_group_fairness',
+                           'eval_gt_f1k']:
             if not 'top_k' in self.input_dict:
                 raise ValueError('Missing key of top_k')
             self.top_k = self.input_dict['top_k']
 
         # representation map L
-        if eval_metric in ['eval_relative_stability', 'eval_counterfactual_fairness']:
+        if eval_metric in ['eval_relative_stability',
+                           'eval_counterfactual_fairness']:
             if not 'L_map' in self.input_dict:
                 raise ValueError('Missing key L_map')
             self.L_map = self.input_dict['L_map']
 
         # p-norm
-        if eval_metric in ['eval_relative_stability', 'eval_counterfactual_fairness']:
+        if eval_metric in ['eval_relative_stability',
+                           'eval_counterfactual_fairness']:
             if not 'p_norm' in self.input_dict:
                 raise ValueError('Missing key p_norm')
             self.p_norm = self.input_dict['p_norm']
@@ -106,21 +127,26 @@ class Evaluator():
             self.explanation_x_cf = self.input_dict['explanation_x_cf']
 
         # initialized perturbation method object BasePerturbation pertub_method
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability', 'eval_group_fairness']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_group_fairness']:
             if not 'perturb_method' in self.input_dict:
                 raise ValueError('Missing key of perturbation method BasePerturbation perturb_method')
             # initialize the perturbation method, which extends from BasePerturbation
             self.perturb_method = self.input_dict['perturb_method']
 
         # initialized perturbation method object BasePerturbation pertub_method
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability', 'eval_group_fairness']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_group_fairness']:
             if not 'feature_metadata' in self.input_dict:
                 raise ValueError('Missing key of feature metadata feature_metadata')
             # initialize the perturbation method, which extends from BasePerturbation
             self.feature_metadata = self.input_dict['feature_metadata']
 
         # initialized perturbation method object BasePerturbation pertub_method
-        if eval_metric in ['eval_relative_stability', 'eval_pred_faithfulness']:
+        if eval_metric in ['eval_relative_stability',
+                           'eval_pred_faithfulness']:
             if not 'input_data' in self.input_dict:
                 raise ValueError('Missing key of input_data')
             # initialize the perturbation method, which extends from BasePerturbation
@@ -130,7 +156,9 @@ class Evaluator():
             self.top_k_mask = self.input_dict['mask']
 
         # perturbation maximum distance perturb_max_distance
-        if eval_metric in ['eval_pred_faithfulness', 'eval_relative_stability', 'eval_group_fairness']:
+        if eval_metric in ['eval_pred_faithfulness',
+                           'eval_relative_stability',
+                           'eval_group_fairness']:
             if not 'perturb_max_distance' in self.input_dict:
                 raise ValueError('Missing key of perturbation maximum distance perturb_max_distance')
             self.perturb_max_distance = self.input_dict['perturb_max_distance']
@@ -142,7 +170,9 @@ class Evaluator():
                 raise ValueError('Missing key of sensitive class assignment function get_sens_class_labels')
             self.get_sens_class_labels = self.input_dict['get_sens_class_labels']
 
-        if eval_metric in ['eval_gt_similarity', 'eval_gt_rank', 'eval_gt_f1k']:
+        if eval_metric in ['eval_gt_similarity',
+                           'eval_gt_rank',
+                           'eval_gt_f1k']:
             # use the model's return_ground_truth_importance function to get the ground truth
             self.gt_feature_importances = self.model.return_ground_truth_importance(self.x)
             
@@ -261,8 +291,10 @@ class Evaluator():
         y_prbs = self.model(x.float())
         return torch.argmax(y_prbs, dim = 1)
 
-    def eval_relative_stability(self, x_prime_samples, exp_prime_samples, exp_at_input, rep_denominator_flag: bool = False,
-                                   use_threshold: bool = False):
+    def eval_relative_stability(self,
+                                x_prime_samples,
+                                exp_prime_samples,
+                                exp_at_input, rep_denominator_flag: bool = False):
         """ Approximates the maximum L-p distance between explanations in a neighborhood around
             input x.
 
@@ -296,23 +328,15 @@ class Evaluator():
 
             exp_diffs.append(explanation_diff)
 
-            if use_threshold:
-                threshold = self._compute_threshold(num_samples)
-
-                # only evaluate the stability metric for points x_prime with representations close to x
-                if rep_diff < threshold:
-                    stability_measure = explanation_diff
-                    stability_ratios.append(stability_measure)
+            if rep_denominator_flag:
+                # compute norm between representations
+                stability_measure = np.divide(explanation_diff, rep_diff)
             else:
-                if rep_denominator_flag:
-                    # compute norm between representations
-                    stability_measure = np.divide(explanation_diff, rep_diff)
-                else:
-                    feature_difference = self._compute_Lp_norm_diff(self.x, x_prime)
-                    stability_measure = np.divide(explanation_diff, feature_difference)
-                    x_diffs.append(self._compute_Lp_norm_diff(self.x, x_prime))
+                feature_difference = self._compute_Lp_norm_diff(self.x, x_prime)
+                stability_measure = np.divide(explanation_diff, feature_difference)
+                x_diffs.append(self._compute_Lp_norm_diff(self.x, x_prime))
 
-                stability_ratios.append(stability_measure)
+            stability_ratios.append(stability_measure)
                 
         ind_max = np.argmax(stability_ratios)
 
