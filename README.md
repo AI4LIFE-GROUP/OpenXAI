@@ -1,20 +1,3 @@
-
-## Contributing
-[TODO]
-
-### Installation
-[TODO]
-
-## Licence
-
-OpenXAI is under the MIT Licence. See the [LICENCE](https://github.com/AI4LIFE-GROUP/OpenXAI/blob/main/LICENSE) for more details.
-
-## Citation
-
-[TODO]
-
-
-
 # OpenXAI : Towards a Transparent Evaluation of Model Explanations
 
 ----
