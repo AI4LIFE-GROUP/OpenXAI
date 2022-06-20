@@ -1,6 +1,0 @@
-ANN Adult 1.3415
-ANN Compas 0.3234
-ANN German 1.456
-LR Adult 11.3540
-LR Compas 0.5215
-LR German 3.6541
