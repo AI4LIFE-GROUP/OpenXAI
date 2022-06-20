@@ -99,8 +99,6 @@ Every explanation method in OpenXAI is a benchmark, and we provide dataloaders, 
 
 * Submit the performance of the explanation method for a given metric.
 
-As many datasets share a therapeutics theme, we organize benchmarks into meaningfully defined groups, which we refer to as benchmark groups. Datasets and tasks within a benchmark group are carefully curated and centered around a theme (for example, TDC contains a benchmark group to support ML predictions of the ADMET properties). While every benchmark group consists of multiple benchmarks, it is possible to separately submit results for each benchmark in the group. Here is the code framework to access the benchmarks:
-
 ## Cite Us
 
 If you find OpenXAI benchmark useful, cite our paper:
