@@ -119,9 +119,9 @@ As many datasets share a therapeutics theme, we organize benchmarks into meaning
 If you find OpenXAI benchmark useful, cite our paper:
 
 ```
-@article{Huang2021tdc,
+@article{Agarwal2022openxai,
   title={OpenXAI: Towards a Transparent Evaluation of Model Explanations},
-  author={Agarwal1, Chirag and Saxena, Eshika and Krishna, Satyapriya and Pawelczyk, Martin and Johnson, Nari and Puri, Isha and Zitnik, Marinka and Lakkaraju, Himabindu},
+  author={Agarwal, Chirag and Saxena, Eshika and Krishna, Satyapriya and Pawelczyk, Martin and Johnson, Nari and Puri, Isha and Zitnik, Marinka and Lakkaraju, Himabindu},
   journal={arXiv},
   year={2022}
 }
