@@ -30,13 +30,6 @@ To install the core environment dependencies of OpenXAI, use `pip` by cloning th
 pip install -e . 
 ```
 
-The core data loaders are lightweight with minimum dependency on external packages:
-
-```bash
-numpy, pandas, scikit-learn, captum
-```
-
-
 ## Design of OpenXAI
 
 OpenXAI is an open-source ecosystem comprising XAI-ready datasets, implementations of state-of-the-art explanation methods, evaluation metrics, leaderboards and documentation to promote transparency and collaboration around evaluations of post hoc explanations. OpenXAI can readily be used to *benchmark* new explanation methods as well as incorporate them into our framework and leaderboards. By enabling *systematic and efficient evaluation* and benchmarking of existing and new explanation methods, OpenXAI can inform and accelerate new research in the emerging field of XAI.
