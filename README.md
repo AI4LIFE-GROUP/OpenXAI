@@ -100,7 +100,7 @@ If you find OpenXAI benchmark useful, cite our paper:
 @article{agarwal2022openxai,
   title={OpenXAI: Towards a Transparent Evaluation of Model Explanations},
   author={Agarwal, Chirag and Saxena, Eshika and Krishna, Satyapriya and Pawelczyk, Martin and Johnson, Nari and Puri, Isha and Zitnik, Marinka and Lakkaraju, Himabindu},
-  journal={arXiv},
+  journal={arXiv preprint arXiv:2206.11104},
   year={2022}
 }
 ```
