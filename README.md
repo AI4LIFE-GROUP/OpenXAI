@@ -110,4 +110,4 @@ If you find OpenXAI benchmark useful, cite our paper:
 Reach us at [openxaibench@gmail.com](mailto:openxaibench@gmail.com) or open a GitHub issue.
 
 ## License
-OpenXAI codebase is under MIT license. For individual dataset usage, please refer to the dataset license found in the website.
+OpenXAI codebase is under MIT license. For individual dataset usage, please refer to the dataset license found on the website.
