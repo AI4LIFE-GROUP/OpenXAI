@@ -41,8 +41,8 @@ OpenXAI provides a Dataloader class that can be used to load the aforementioned 
 For a concrete example, the code snippet below shows how to import the Dataloader class and load an existing OpenXAI dataset:
 
 ```python
-from openxai import Dataloader
-loader_train, loader_test = Dataloader.return_loaders(data_name=‘german’, download=True)
+from openxai.dataloader import return_loaders
+loader_train, loader_test = return_loaders(data_name=‘german’, download=True)
 # get an input instance from the test dataset
 inputs, labels = iter(loader_test).next()
 ```
@@ -53,7 +53,7 @@ We also pre-trained two classes of predictive models (e.g., deep neural networks
 
 ```python
 from openxai import LoadModel
-model = LoadModel(data_name=‘german’, ml_model=‘ann’)
+model = LoadModel(data_name= 'german', ml_model='ann', pretrained=True)
 ```
 
 Adding additional pre-trained models into the OpenXAI framework is as simple as uploading a file with details about model architecture and parameters in a specific template. Users can also submit requests to incorporate custom pre-trained models into the OpenXAI framework by filling a simple form and providing details about model architecture and parameters.
@@ -64,8 +64,8 @@ All the explanation methods included in OpenXAI are readily accessible through t
 
 ```python
 from openxai import Explainer
-exp_method = Explainer(method=‘LIME’)
-explanations = exp_method.get_explanations(model, X=inputs, y=labels)
+exp_method = Explainer(method= 'lime',model=model, dataset_tensor=inputs)
+explanations= exp_method.get_explanation(inputs, labels)
 ```
 
 Users can then submit a request to incorporate their custom methods into OpenXAI library by filling a form and providing the GitHub link to their code as well as a summary of their explanation method.
