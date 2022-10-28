@@ -64,7 +64,7 @@ class OpenXAI(object):
 
         Returns:
           A numpy array with n rows and 2d + 3 columns. 
-          The columns from left to righ are: features (d),
+          The columns from left to right are: features (d),
           feature attribution scores (d), label (1), predicted label (1),
           and is_test flag (1).
         """
