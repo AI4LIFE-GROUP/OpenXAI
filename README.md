@@ -72,7 +72,7 @@ Users can then submit a request to incorporate their custom methods into OpenXAI
 
 ### OpenXAI Evaluation
 
-Benchmarking an explanation method using evaluation metrics is quite simple and the code snippet below describes how to invoke the RIS metric. Users can easily incorporate their own custom evaluation metrics into OpenXAI by filling a form and providing the GitHub link to their code as well as a summary of their metric. Note that the code should be in the form of a function which takes as input data instances, corresponding model predictions and their explanations, as well as OpenXAI’s model object and returns a numerical score. Finally, the input_dict is described [here]([https://open-xai.github.io/quick-start](https://github.com/AI4LIFE-GROUP/OpenXAI/blob/main/OpenXAI%20quickstart.ipynb).
+Benchmarking an explanation method using evaluation metrics is quite simple and the code snippet below describes how to invoke the RIS metric. Users can easily incorporate their own custom evaluation metrics into OpenXAI by filling a form and providing the GitHub link to their code as well as a summary of their metric. Note that the code should be in the form of a function which takes as input data instances, corresponding model predictions and their explanations, as well as OpenXAI’s model object and returns a numerical score. Finally, the input_dict is described [here](https://github.com/AI4LIFE-GROUP/OpenXAI/blob/main/OpenXAI%20quickstart.ipynb).
 
 ```python
 from openxai import Evaluator
