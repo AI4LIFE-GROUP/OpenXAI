@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-from openxai.LoadModel import LoadModel
-from openxai.Explainer import Explainer
+from openxai import LoadModel
+from openxai import Explainer
 from openxai.dataloader import return_loaders
 
 
