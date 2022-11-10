@@ -1,8 +1,6 @@
 from setuptools import setup
 
 install_requires = [
-      'pandas==1.3.5',
-      'tqdm==4.62.3',
       'captum==0.4.0',
       'certifi==2022.9.24',
       'charset-normalizer==2.0.12',
@@ -22,6 +20,8 @@ install_requires = [
       'matplotlib==3.3.4',
       'lime==0.2.0.1',
       'shap==0.40.0',
+      'pandas==1.3.5',
+      'tqdm==4.62.3',
       'pillow==8.4.0',
       'pycocotools==2.0.5',
       'Keras-Preprocessing==1.1.2',
