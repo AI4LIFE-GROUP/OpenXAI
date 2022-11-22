@@ -40,7 +40,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
         inputs, labels = data_iter.next()
     
     if pretrained:
-        os.mkdir('./pretrained')
+        os.makedirs('./pretrained', exist_ok=True)
         if data_name == 'synthetic':
             if ml_model == 'ann':
                 r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6718575', allow_redirects=True)
