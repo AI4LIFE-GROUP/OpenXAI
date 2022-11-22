@@ -2,7 +2,7 @@ from setuptools import setup
 
 install_requires = [
       'captum>=0.4.0',
-      'torch>=1.7.0',
+      'torch==1.11.0',
       'torchray>=1.0.0.2',
       'torchvision>=0.8.0',
       'numpy>=1.19.5',
