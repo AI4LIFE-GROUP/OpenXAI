@@ -3,9 +3,9 @@ import numpy as np
 import pandas as pd
 import torch
 
-from openxai import LoadModel
-from openxai import Explainer
-from openxai.dataloader import return_loaders
+from LoadModel import LoadModel
+from Explainer import Explainer
+from dataloader import return_loaders
 
 
 class OpenXAI(object):
@@ -56,14 +56,14 @@ class OpenXAI(object):
         """Get the combined data for a single or a batch of samples.
 
         Let n be number of samples, d be feature dimension.
-            
+
         Arguments:
           X: feature tensor with size (n, d).
-          y: label tensor with size (n,). 
+          y: label tensor with size (n,).
           is_test: `True` if this batch is test data. `False` otherwise.
 
         Returns:
-          A numpy array with n rows and 2d + 3 columns. 
+          A numpy array with n rows and 2d + 3 columns.
           The columns from left to right are: features (d),
           feature attribution scores (d), label (1), predicted label (1),
           and is_test flag (1).

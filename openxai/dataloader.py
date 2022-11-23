@@ -3,7 +3,7 @@ import re
 import torch
 import requests
 import pandas as pd
-from openxai import dgp_synthetic
+import dgp_synthetic
 from errno import EEXIST
 from typing import Any, List
 import torch.utils.data as data
@@ -16,7 +16,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 class TabularDataLoader(data.Dataset):
     def __init__(self, path, filename, label, download=False, scale='minmax', gauss_params=None):
-            
+
         """
         Load training dataset
         :param path: string with path to training set
@@ -30,7 +30,7 @@ class TabularDataLoader(data.Dataset):
 
         # Load Synthetic dataset
         if 'Synthetic' in self.path:
-            
+
             '''
             if download:
                 url = 'https://raw.githubusercontent.com/chirag126/data/main/'
@@ -40,10 +40,10 @@ class TabularDataLoader(data.Dataset):
                 urlretrieve(file_download, path + 'dgp_synthetic.py')
 
             if not os.path.isdir(path + 'dgp_synthetic.py'):
-                raise RuntimeError("Dataset not found. You can use download=True to download it")           
+                raise RuntimeError("Dataset not found. You can use download=True to download it")
 
             from openxai import dgp_synthetic
-            
+
             '''
 
             if gauss_params is None:
@@ -59,7 +59,7 @@ class TabularDataLoader(data.Dataset):
                     'sigma': None,
                     'sparsity': 0.25
                 }
-            
+
             data_dict, data_dict_train, data_dict_test = dgp_synthetic.generate_gaussians(gauss_params['n_samples'],
                                                         gauss_params['dim'],
                                                         gauss_params['n_clusters'],
@@ -70,35 +70,35 @@ class TabularDataLoader(data.Dataset):
                                                         gauss_params['seed'],
                                                         gauss_params['sigma'],
                                                         gauss_params['sparsity']).dgp_vars()
-            
+
             self.ground_truth_dict = data_dict
             self.target = label
-            
+
             if 'train' in filename:
                 data_dict = data_dict_train
             elif 'test' in filename:
                 data_dict = data_dict_test
             else:
                 raise NotImplementedError('The current version of DataLoader class only provides training and testing splits')
-                   
+
             self.dataset = pd.DataFrame(data_dict['data'])
             data_y = pd.DataFrame(data_dict['target'])
-            
+
             names = []
             for i in range(gauss_params['dim']):
                 name = 'x' + str(i)
                 names.append(name)
-                
+
             self.dataset.columns = names
             self.dataset['y'] = data_y
-            
+
             # add additional Gaussian related aspects
             self.probs = data_dict['probs']
             self.masks = data_dict['masks']
             self.weights = data_dict['weights']
             self.masked_weights = data_dict['masked_weights']
             self.cluster_idx = data_dict['cluster_idx']
-            
+
         else:
             if download:
                 url = 'https://raw.githubusercontent.com/chirag126/data/main/'
@@ -114,7 +114,7 @@ class TabularDataLoader(data.Dataset):
 
         # Save target and predictors
         self.X = self.dataset.drop(self.target, axis=1)
-        
+
         # Save feature names
         self.feature_names = self.X.columns.to_list()
         self.target_name = label
@@ -126,9 +126,9 @@ class TabularDataLoader(data.Dataset):
             self.scaler = StandardScaler()
         else:
             raise NotImplementedError('The current version of DataLoader class only provides the following transformations: {minmax, standard}')
-            
+
         self.scaler.fit_transform(self.X)
-        
+
         self.data = self.scaler.transform(self.X)
         self.targets = self.dataset[self.target]
 
@@ -140,7 +140,7 @@ class TabularDataLoader(data.Dataset):
         # select correct row with idx
         if isinstance(idx, torch.Tensor):
             idx = idx.tolist()
-        
+
         if 'Synthetic' in self.path:
             return (self.data[idx], self.targets.values[idx], self.weights[idx], self.masks[idx],
                     self.masked_weights[idx], self.probs[idx], self.cluster_idx[idx])
@@ -149,7 +149,7 @@ class TabularDataLoader(data.Dataset):
 
     def get_number_of_features(self):
         return self.data.shape[1]
-    
+
     def get_number_of_instances(self):
         return self.data.shape[0]
 
@@ -161,11 +161,11 @@ class TabularDataLoader(data.Dataset):
             if exc.errno == EEXIST and os.path.isdir(mypath):
                 pass
             else:
-                raise 
+                raise
 
 
 def return_loaders(data_name, download=False, batch_size=32, transform=None, scaler='minmax', gauss_params=None):
-                
+
     # Create a dictionary with all available dataset names
     dict = {
             'adult': ('Adult', transform, 'income'),
@@ -175,7 +175,7 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
             'credit': ('Credit', transform, 'SeriousDlqin2yrs'),
             'synthetic': ('Synthetic', transform, 'y')
             }
-    
+
     if dict[data_name][0] == 'synthetic':
         prefix = './data/' + dict[data_name][0] + '/'
         file_train = 'train'
@@ -195,5 +195,5 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
 
     trainloader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
-    
+
     return trainloader, testloader
