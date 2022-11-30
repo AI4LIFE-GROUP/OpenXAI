@@ -374,7 +374,7 @@ class Evaluator():
         y = self._arr(self.model(self.x.reshape(1, -1).float()))
         y_perturbed = self._arr(self.model(x_perturbed.float()))
 
-        return np.max(np.abs(y - y_perturbed), axis=0)[0]
+        return np.mean(np.abs(y - y_perturbed), axis=0)[0]
 
     def _compute_Lp_norm_diff(self, vec1, vec2, normalize_to_relative_change: bool = True, eps: np.float = 0.001):
         """ Returns the Lp norm of the difference between vec1 and vec2.
