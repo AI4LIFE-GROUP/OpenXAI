@@ -9,10 +9,9 @@ import copy
 import ipdb
 from sklearn.metrics import f1_score, accuracy_score
 
-from xai_benchmark.ML_Models.LR.model import LogisticRegression
-import xai_benchmark.ML_Models.ANN.model as model_ann
-from xai_benchmark.ML_Models.SVM.model import SVM, SVM_Loss
-import xai_benchmark.ML_Models.data_loader as loader
+from openxai.ML_Models.LR.model import LogisticRegression
+import openxai.ML_Models.ANN.model as model_ann
+import openxai.ML_Models.data_loader as loader
 
 def training(model, train_loader, test_loader, ml_model, dir_name, learning_rate, epochs, dataset,
              adv_train_params=None):
