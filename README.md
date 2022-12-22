@@ -118,11 +118,13 @@ Every explanation method in OpenXAI is a benchmark, and we provide dataloaders, 
 If you find OpenXAI benchmark useful, cite our paper:
 
 ```
-@article{agarwal2022openxai,
-  title={OpenXAI: Towards a Transparent Evaluation of Model Explanations},
-  author={Agarwal, Chirag and Saxena, Eshika and Krishna, Satyapriya and Pawelczyk, Martin and Johnson, Nari and Puri, Isha and Zitnik, Marinka and Lakkaraju, Himabindu},
-  journal={arXiv preprint arXiv:2206.11104},
-  year={2022}
+@inproceedings{
+agarwal2022openxai,
+title={Open{XAI}: Towards a Transparent Evaluation of Model Explanations},
+author={Chirag Agarwal and Satyapriya Krishna and Eshika Saxena and Martin Pawelczyk and Nari Johnson and Isha Puri and Marinka Zitnik and Himabindu Lakkaraju},
+booktitle={Thirty-sixth Conference on Neural Information Processing Systems Datasets and Benchmarks Track},
+year={2022},
+url={https://openreview.net/forum?id=MU2495w47rz}
 }
 ```
 
