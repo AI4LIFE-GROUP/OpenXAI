@@ -14,6 +14,8 @@ install_requires = [
       'requests>=2.16.0',
       'scipy>=1.6.0',
       'scikit-learn>=0.24.1',
+      'jupyterlab>=3.5.2',
+      'IProgress>=0.4'
       ]
 
 setup(name='openxai',
