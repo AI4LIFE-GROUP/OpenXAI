@@ -18,7 +18,7 @@ class OpenXAI(object):
         self.explainer_name = explainer_name
 
         self.loader_train, self.loader_test = return_loaders(
-            data_name=data_name, download=True)
+            data_name=data_name, download=True, scaler="none")
         self.model = LoadModel(data_name=data_name, ml_model=model_name)
 
         dataset_tensor = torch.FloatTensor(self.loader_train.dataset.data)
@@ -109,7 +109,8 @@ if __name__ == '__main__':
     data_names = ["compas", "adult", "german"]
     explainer_names = ["grad", "sg", "itg", "ig", "shap", "lime"]
     for data_name in data_names:
-        _, loader_test = return_loaders(data_name=data_name, download=True)
+        _, loader_test = return_loaders(
+            data_name=data_name, download=True, scaler="none")
         X, y = iter(loader_test).next()
         X = X.to(dtype=torch.float32)
         X = X[:4]  # use smaller batch
