@@ -135,8 +135,13 @@ elif data_name == 'synthetic':
 # Heloc feature types
 elif data_name == 'heloc':
     feature_types = ['c'] * 23
+# German Credit Data feature metadata
 elif data_name == 'german':
     feature_types = ['c'] * 8 + ['d'] * 12
+    feature_metadata = dict()
+    feature_metadata['feature_n_cols'] = [1, 1, 1, 1, 1, 1, 1, 1, 4, 5, 10, 5, 5, 4, 3, 4, 3, 3, 4, 2]
+    feature_metadata['feature_types'] = feature_types
+    feature_types = feature_metadata
 
 # Perturbation methods
 if data_name == 'german':
