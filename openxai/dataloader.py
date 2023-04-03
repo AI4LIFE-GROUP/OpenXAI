@@ -1,5 +1,8 @@
+import csv
+import io
 import os
 import re
+import subprocess
 import torch
 import requests
 import pandas as pd
@@ -14,14 +17,37 @@ from urllib.request import urlopen, urlretrieve
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
+def download_file(url, filename):
+    # Download the file from the URL
+    subprocess.call(["wget", "-O", filename, url])
+
+    with open(filename, "r") as f:
+        data = f.read()
+
+    # Detect the file format
+    if '\t' in data:  # if the file is tab delimited
+        # Convert the file to CSV format
+        data = io.StringIO(data)
+        reader = csv.reader(data, delimiter='\t')
+        output = io.StringIO()
+        writer = csv.writer(output)
+        for row in reader:
+            writer.writerow(row)
+        data = output.getvalue()
+
+    # Save the file to disk
+    with open(filename, 'w', newline='') as f:
+        f.write(data)
+
+
 class TabularDataLoader(data.Dataset):
-    def __init__(self, path, filename, label, download=False, scale='minmax', gauss_params=None):
+    def __init__(self, path, filename, label, download=False, scale='minmax', gauss_params=None, file_url=None):
             
         """
         Load training dataset
         :param path: string with path to training set
         :param label: string, column name for label
-        :param scale: string; 'minmax', 'standard', or 'none'
+        :param scale: string; either 'minmax' or 'standard'
         :param dict: standard params of gaussian dgp
         :return: tensor with training data
         """
@@ -101,10 +127,13 @@ class TabularDataLoader(data.Dataset):
             
         else:
             if download:
-                url = 'https://raw.githubusercontent.com/chirag126/data/main/'
                 self.mkdir_p(path)
-                file_download = url + filename
-                urlretrieve(file_download, path + filename)
+                if file_url is None:
+                    url = 'https://raw.githubusercontent.com/chirag126/data/main/'
+                    file_download = url + filename
+                    urlretrieve(file_download, path + filename)
+                else:
+                    download_file(file_url, path + filename)
 
             if not os.path.isfile(path + filename):
                 raise RuntimeError("Dataset not found. You can use download=True to download it")
@@ -124,16 +153,12 @@ class TabularDataLoader(data.Dataset):
             self.scaler = MinMaxScaler()
         elif scale == 'standard':
             self.scaler = StandardScaler()
-        elif scale == 'none':
-            self.scaler = None
         else:
-            raise NotImplementedError('The current version of DataLoader class only provides the following transformations: {minmax, standard, none}')
+            raise NotImplementedError('The current version of DataLoader class only provides the following transformations: {minmax, standard}')
+            
+        self.scaler.fit_transform(self.X)
         
-        if self.scaler is not None:
-            self.scaler.fit_transform(self.X)
-            self.data = self.scaler.transform(self.X)
-        else:
-            self.data = self.X.values
+        self.data = self.scaler.transform(self.X)
         self.targets = self.dataset[self.target]
 
     def __len__(self):
@@ -177,7 +202,16 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
             'german': ('German_Credit_Data', transform, 'credit-risk'),
             'heloc': ('Heloc', transform, 'RiskPerformance'),
             'credit': ('Credit', transform, 'SeriousDlqin2yrs'),
-            'synthetic': ('Synthetic', transform, 'y')
+            'synthetic': ('Synthetic', transform, 'y'),
+            'rcdv': ('rcdv1980', transform, 'recid'),
+            'lending-club': ('lending-club', transform, 'loan_repaid'),
+            }
+
+    urls = {
+            'rcdv-train': 'https://dataverse.harvard.edu/api/access/datafile/6767836',
+            'rcdv-test': 'https://dataverse.harvard.edu/api/access/datafile/6767837',
+            'lending-club-train': 'https://dataverse.harvard.edu/api/access/datafile/6767839',
+            'lending-club-test': 'https://dataverse.harvard.edu/api/access/datafile/6767838',
             }
     
     if dict[data_name][0] == 'synthetic':
@@ -191,11 +225,13 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
 
     dataset_train = TabularDataLoader(path=prefix, filename=file_train,
                                       label=dict[data_name][2], scale=scaler,
-                                      gauss_params=gauss_params, download=download)
+                                      gauss_params=gauss_params, download=download,
+                                      file_url=urls.get(file_train[:-4], None))
 
     dataset_test = TabularDataLoader(path=prefix, filename=file_test,
                                      label=dict[data_name][2], scale=scaler,
-                                     gauss_params=gauss_params, download=download)
+                                     gauss_params=gauss_params, download=download,
+                                     file_url=urls.get(file_test[:-4], None))
 
     trainloader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
