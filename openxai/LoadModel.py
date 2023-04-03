@@ -125,6 +125,38 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                 open(model_path, 'wb').write(r.content)
                 model = LogisticRegression(input_dim=inputs.shape[1])
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        elif data_name == 'rcdv':
+            if ml_model == 'ann':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990767', allow_redirects=True)
+                model_path = './pretrained/ann_rcdv.pt'
+                open(model_path, 'wb').write(r.content)
+                model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
+                                              hidden_layer_1=100,
+                                              num_of_classes=2)
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            
+            elif ml_model == 'lr':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990768', allow_redirects=True)
+                model_path = './pretrained/lr_rcdv.pt'
+                open(model_path, 'wb').write(r.content)
+                model = LogisticRegression(input_dim=inputs.shape[1])
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        elif data_name == 'lending-club':
+            if ml_model == 'ann':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990764', allow_redirects=True)
+                model_path = './pretrained/ann_lending-club.pt'
+                open(model_path, 'wb').write(r.content)
+                model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
+                                              hidden_layer_1=100,
+                                              num_of_classes=2)
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            
+            elif ml_model == 'lr':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990766', allow_redirects=True)
+                model_path = './pretrained/lr_lending-club.pt'
+                open(model_path, 'wb').write(r.content)
+                model = LogisticRegression(input_dim=inputs.shape[1])
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
         else:
             raise NotImplementedError(
                  'The current version of >LoadModel< does not support this data set.')
