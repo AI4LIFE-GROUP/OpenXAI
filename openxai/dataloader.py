@@ -47,7 +47,7 @@ class TabularDataLoader(data.Dataset):
         Load training dataset
         :param path: string with path to training set
         :param label: string, column name for label
-        :param scale: string; either 'minmax' or 'standard'
+        :param scale: string; 'minmax', 'standard', or 'none'
         :param dict: standard params of gaussian dgp
         :return: tensor with training data
         """
@@ -153,12 +153,16 @@ class TabularDataLoader(data.Dataset):
             self.scaler = MinMaxScaler()
         elif scale == 'standard':
             self.scaler = StandardScaler()
+        elif scale == 'none':
+            self.scaler = None
         else:
-            raise NotImplementedError('The current version of DataLoader class only provides the following transformations: {minmax, standard}')
+            raise NotImplementedError('The current version of DataLoader class only provides the following transformations: {minmax, standard, none}')
             
-        self.scaler.fit_transform(self.X)
-        
-        self.data = self.scaler.transform(self.X)
+        if self.scaler is not None:
+            self.scaler.fit_transform(self.X)
+            self.data = self.scaler.transform(self.X)
+        else:
+            self.data = self.X.values
         self.targets = self.dataset[self.target]
 
     def __len__(self):
