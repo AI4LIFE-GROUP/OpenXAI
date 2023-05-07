@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     # test batch and single query
     model_names = ["ann", "lr"]
-    data_names = ["compas", "adult", "german"]
+    data_names = ["compas", "adult", "german", "student", "rcdv"]
     explainer_names = ["grad", "sg", "itg", "ig", "shap", "lime"]
     for data_name in data_names:
         _, loader_test = return_loaders(
