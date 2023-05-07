@@ -127,7 +127,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
         elif data_name == 'rcdv':
             if ml_model == 'ann':
-                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990767', allow_redirects=True)
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7093738', allow_redirects=True)
                 model_path = './pretrained/ann_rcdv.pt'
                 open(model_path, 'wb').write(r.content)
                 model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
@@ -136,7 +136,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
             
             elif ml_model == 'lr':
-                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990768', allow_redirects=True)
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7093736', allow_redirects=True)
                 model_path = './pretrained/lr_rcdv.pt'
                 open(model_path, 'wb').write(r.content)
                 model = LogisticRegression(input_dim=inputs.shape[1])
@@ -154,6 +154,22 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
             elif ml_model == 'lr':
                 r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6990766', allow_redirects=True)
                 model_path = './pretrained/lr_lending-club.pt'
+                open(model_path, 'wb').write(r.content)
+                model = LogisticRegression(input_dim=inputs.shape[1])
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+        elif data_name == 'student':
+            if ml_model == 'ann':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7093735', allow_redirects=True)
+                model_path = './pretrained/ann_student.pt'
+                open(model_path, 'wb').write(r.content)
+                model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
+                                              hidden_layer_1=100,
+                                              num_of_classes=2)
+                model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+            
+            elif ml_model == 'lr':
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7093732', allow_redirects=True)
+                model_path = './pretrained/lr_student.pt'
                 open(model_path, 'wb').write(r.content)
                 model = LogisticRegression(input_dim=inputs.shape[1])
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))

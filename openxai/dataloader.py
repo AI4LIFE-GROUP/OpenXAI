@@ -35,9 +35,9 @@ def download_file(url, filename):
             writer.writerow(row)
         data = output.getvalue()
 
-    # Save the file to disk
-    with open(filename, 'w', newline='') as f:
-        f.write(data)
+        # Save the file to disk
+        with open(filename, 'w', newline='') as f:
+            f.write(data)
 
 
 class TabularDataLoader(data.Dataset):
@@ -205,13 +205,16 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
             'synthetic': ('Synthetic', transform, 'y'),
             'rcdv': ('rcdv1980', transform, 'recid'),
             'lending-club': ('lending-club', transform, 'loan_repaid'),
+            'student': ('student', transform, 'decision'),
             }
 
     urls = {
-            'rcdv-train': 'https://dataverse.harvard.edu/api/access/datafile/6767836',
-            'rcdv-test': 'https://dataverse.harvard.edu/api/access/datafile/6767837',
+            'rcdv-train': 'https://dataverse.harvard.edu/api/access/datafile/7093737',
+            'rcdv-test': 'https://dataverse.harvard.edu/api/access/datafile/7093739',
             'lending-club-train': 'https://dataverse.harvard.edu/api/access/datafile/6767839',
             'lending-club-test': 'https://dataverse.harvard.edu/api/access/datafile/6767838',
+            'student-train': 'https://dataverse.harvard.edu/api/access/datafile/7093733',
+            'student-test': 'https://dataverse.harvard.edu/api/access/datafile/7093734',
             }
     
     if dict[data_name][0] == 'synthetic':
@@ -234,6 +237,6 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
                                      file_url=urls.get(file_test[:-4], None))
 
     trainloader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
-    testloader = DataLoader(dataset_test, batch_size=batch_size, shuffle=True)
+    testloader = DataLoader(dataset_test, batch_size=batch_size, shuffle=False)
     
     return trainloader, testloader
