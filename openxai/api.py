@@ -1,4 +1,5 @@
 """External APIs."""
+import math
 import numpy as np
 import pandas as pd
 import torch
@@ -18,7 +19,7 @@ class OpenXAI(object):
         self.explainer_name = explainer_name
 
         self.loader_train, self.loader_test = return_loaders(
-            data_name=data_name, download=True, scaler="none")
+            data_name=data_name, download=True)
         self.model = LoadModel(data_name=data_name, ml_model=model_name)
 
         dataset_tensor = torch.FloatTensor(self.loader_train.dataset.data)
@@ -35,6 +36,16 @@ class OpenXAI(object):
         ]
         self.column_names += ["label", "prediction", "is_test"]
 
+        # use X_*_raw to display the original data, and X_*_scaled to feed into
+        # the model for predictions
+        self.X_train_raw = torch.from_numpy(self.loader_train.dataset.X.values)
+        self.X_train_scaled = torch.from_numpy(self.loader_train.dataset.data)
+        self.y_train = torch.from_numpy(
+            self.loader_train.dataset.targets.values)
+        self.X_test_raw = torch.from_numpy(self.loader_test.dataset.X.values)
+        self.X_test_scaled = torch.from_numpy(self.loader_test.dataset.data)
+        self.y_test = torch.from_numpy(self.loader_test.dataset.targets.values)
+
         # will be calculated when the first time querying the full df
         self.df_full = None
 
@@ -42,24 +53,35 @@ class OpenXAI(object):
         """Get the full dataframe."""
         # iterate through `self.loader_train` and `self.loader_test` to get and
         # store the data, predictions, and explanations on all samples
+        batch_size = 128
         data = []
-        for X, y in self.loader_train:
-            data.append(self._get_combined_data(X, y))
-        for X, y in self.loader_test:
-            data.append(self._get_combined_data(X, y, is_test=True))
+        # iterate through the training set by batch
+        for i in range(math.ceil(self.X_train_raw.size(0) / batch_size)):
+            X_raw = self.X_train_raw[i * batch_size:(i + 1) * batch_size]
+            X_scaled = self.X_train_scaled[i * batch_size:(i + 1) * batch_size]
+            y = self.y_train[i * batch_size:(i + 1) * batch_size]
+            data.append(
+                self._get_combined_data(X_raw, y, X_scaled, is_test=False))
+        for i in range(math.ceil(self.X_test_raw.size(0) / batch_size)):
+            X_raw = self.X_test_raw[i * batch_size:(i + 1) * batch_size]
+            X_scaled = self.X_test_scaled[i * batch_size:(i + 1) * batch_size]
+            y = self.y_test[i * batch_size:(i + 1) * batch_size]
+            data.append(
+                self._get_combined_data(X_raw, y, X_scaled, is_test=True))
 
         data = np.concatenate(data, axis=0)
 
         return pd.DataFrame(data, columns=self.column_names)
 
-    def _get_combined_data(self, X, y, is_test=False):
+    def _get_combined_data(self, X_raw, y, X_scaled=None, is_test=False):
         """Get the combined data for a single or a batch of samples.
 
         Let n be number of samples, d be feature dimension.
-            
+
         Arguments:
-          X: feature tensor with size (n, d).
-          y: label tensor with size (n,). 
+          X_raw: raw feature tensor with size (n, d).
+          y: label tensor with size (n,).
+          X_scaled: scaled feature tensor with the same size as `X_raw`.
           is_test: `True` if this batch is test data. `False` otherwise.
 
         Returns:
@@ -68,6 +90,13 @@ class OpenXAI(object):
           feature attribution scores (d), label (1), predicted label (1),
           and is_test flag (1).
         """
+        if X_scaled is None:
+            X_scaled = X_raw
+        else:
+            # check the size of X_scaled and X_raw matches
+            assert X_scaled.size() == X_raw.size()
+
+        X = X_scaled
         attribution = self.explainer.get_explanation(X.to(dtype=torch.float32),
                                                      y)
         output = self.model(X.to(dtype=torch.float32))
@@ -79,11 +108,15 @@ class OpenXAI(object):
         else:
             t = torch.zeros([X.size(0), 1])
 
-        data = [X, attribution, y.unsqueeze(-1), prediction.unsqueeze(-1), t]
+        data = [
+            X_raw, attribution,
+            y.unsqueeze(-1),
+            prediction.unsqueeze(-1), t
+        ]
         data = torch.cat(data, dim=1).detach().numpy()
         return data
 
-    def query(self, X=None, y=None):
+    def query(self, X=None, y=None, X_scaled=None):
         """Query OpenXAI to get a pandas dataframe."""
         if X is None:  # query the full data
             if self.df_full is None:
@@ -94,7 +127,8 @@ class OpenXAI(object):
                 X = X.unsqueeze(0)
             if len(y.size()) == 0:  # single data sample to batch with size 1
                 y = y.unsqueeze(0)
-            data = self._get_combined_data(X, y, is_test=True)  # assume test
+            # assume is_test
+            data = self._get_combined_data(X, y, X_scaled, is_test=True)
             return pd.DataFrame(data, columns=self.column_names)
 
 
@@ -109,8 +143,9 @@ if __name__ == '__main__':
     data_names = ["compas", "adult", "german", "student", "rcdv"]
     explainer_names = ["grad", "sg", "itg", "ig", "shap", "lime"]
     for data_name in data_names:
-        _, loader_test = return_loaders(
-            data_name=data_name, download=True, scaler="none")
+        _, loader_test = return_loaders(data_name=data_name,
+                                        download=True,
+                                        scaler="none")
         X, y = iter(loader_test).next()
         X = X.to(dtype=torch.float32)
         X = X[:4]  # use smaller batch
