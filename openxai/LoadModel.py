@@ -77,7 +77,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                 
         elif data_name == 'compas':
             if ml_model == 'ann':
-                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6718040', allow_redirects=True)
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7128436', allow_redirects=True)
                 model_path = './pretrained/ann_compas.pt'
                 open(model_path, 'wb').write(r.content)
                 model = model_ann.ANN_softmax(input_layer=inputs.shape[1],
@@ -86,7 +86,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                 model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
                 
             elif ml_model == 'lr':
-                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/6718042', allow_redirects=True)
+                r = requests.get('https://dataverse.harvard.edu/api/access/datafile/7128435', allow_redirects=True)
                 model_path = './pretrained/lr_compas.pt'
                 open(model_path, 'wb').write(r.content)
                 model = LogisticRegression(input_dim=inputs.shape[1])

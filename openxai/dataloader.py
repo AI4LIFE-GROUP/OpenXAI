@@ -219,6 +219,8 @@ def return_loaders(data_name, download=False, batch_size=32, transform=None, sca
             'lending-club-test': 'https://dataverse.harvard.edu/api/access/datafile/6767838',
             'student-train': 'https://dataverse.harvard.edu/api/access/datafile/7093733',
             'student-test': 'https://dataverse.harvard.edu/api/access/datafile/7093734',
+            'compas-train': 'https://dataverse.harvard.edu/api/access/datafile/7128437',
+            'compas-test': 'https://dataverse.harvard.edu/api/access/datafile/7128434',
             }
     
     if dict[data_name][0] == 'synthetic':
