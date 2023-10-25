@@ -166,7 +166,7 @@ class NormalPerturbation(BasePerturbation):
         perturbations = perturbations * (~discrete_features) + torch.abs(
             (perturbations * discrete_features) - (torch.bernoulli(p) * discrete_features))
 
-        # keeping features static that are in top-K based on feature mask
+        # keeping features static where the feature mask is high
         perturbed_samples = original_sample * feature_mask + perturbations * (~feature_mask)
 
         return perturbed_samples
