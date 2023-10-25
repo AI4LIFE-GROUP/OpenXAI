@@ -113,10 +113,12 @@ explanations = [control_default_exp, grad_default_exp, ig_default_exp, itg_defau
 algos = ['control', 'grad', 'ig', 'itg', 'sg', 'shap', 'lime']
 
 def generate_mask(explanation, top_k):
-    mask_indices = torch.topk(explanation, top_k).indices
-    mask = torch.zeros(explanation.shape) > 10
+    if not isinstance(explanation, torch.Tensor):
+        explanation = torch.Tensor(explanation)
+    mask_indices = torch.topk(explanation.abs(), top_k).indices
+    mask = torch.ones(explanation.shape, dtype=bool)
     for i in mask_indices:
-        mask[i] = True
+        mask[i] = False
     return mask
 
 
