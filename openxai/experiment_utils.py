@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Explanation Models
-from openxai.Explainer import Explainer
+from openxai.explainer import Explainer
 
 # Perturbation Methods
 from openxai.explainers.perturbation_methods import *

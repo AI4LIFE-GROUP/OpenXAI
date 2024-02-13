@@ -11,7 +11,7 @@ from openxai.LoadModel import LoadModel
 from openxai.dataloader import return_loaders
 
 # Explanation models
-from openxai.Explainer import Explainer
+from openxai.explainer import Explainer
 
 # Evaluation methods
 from openxai.evaluator import Evaluator

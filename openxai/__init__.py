@@ -1,3 +1,3 @@
 from .LoadModel import LoadModel
-from .Explainer import Explainer
+from .explainer import Explainer
 from .evaluator import Evaluator
