@@ -5,7 +5,7 @@ import pickle
 from sklearn.metrics import auc
 
 # ML models
-from openxai.LoadModel import LoadModel
+from openxai.load_model import LoadModel
 
 # Data loaders
 from openxai.dataloader import return_loaders

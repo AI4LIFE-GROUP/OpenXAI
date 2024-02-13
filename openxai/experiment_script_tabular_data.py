@@ -1,5 +1,5 @@
 # models
-from openxai.LoadModel import LoadModel
+from openxai.load_model import LoadModel
 
 # Experiment
 from openxai.experiment_utils import ExperimentRunner
