@@ -31,13 +31,13 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
                                                            batch_size=32,  # arbitrary
                                                            gauss_params=gauss_params)
         data_iter = iter(loader_test)
-        inputs, labels, weights, masks, masked_weights, probs, cluster_idx = data_iter.next()
+        inputs, labels, weights, masks, masked_weights, probs, cluster_idx = next(data_iter)
     else:
         loader_train, loader_test = loaders.return_loaders(data_name=data_name,
                                                            download=True,
                                                            batch_size=32)  # arbitrary
         data_iter = iter(loader_test)
-        inputs, labels = data_iter.next()
+        inputs, labels = next(data_iter)
     
     if pretrained:
         os.makedirs('./pretrained', exist_ok=True)
