@@ -376,7 +376,7 @@ class Evaluator():
 
         return np.mean(np.abs(y - y_perturbed), axis=0)[0]
 
-    def _compute_Lp_norm_diff(self, vec1, vec2, normalize_to_relative_change: bool = True, eps: np.float = 0.001):
+    def _compute_Lp_norm_diff(self, vec1, vec2, normalize_to_relative_change: bool = True, eps: float = 0.001):
         """ Returns the Lp norm of the difference between vec1 and vec2.
         Args:
             normalize_by_vec1: when true, normalizes the difference between vec1 and vec2 by vec1
