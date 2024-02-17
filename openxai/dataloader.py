@@ -1,21 +1,14 @@
 import csv
 import io
 import os
-import re
 import subprocess
 import torch
-import requests
 import pandas as pd
-from openxai import dgp_synthetic
 from errno import EEXIST
-from typing import Any, List
 import torch.utils.data as data
-from torchvision import transforms
 from torch.utils.data import DataLoader
-from urllib.request import urlopen, urlretrieve
-# from xai_benchmark.dataset.Synthetic import dgp_synthetic
+from urllib.request import urlretrieve
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
-
 
 def download_file(url, filename):
     # Download the file from the URL
@@ -41,105 +34,31 @@ def download_file(url, filename):
 
 
 class TabularDataLoader(data.Dataset):
-    def __init__(self, path, filename, label, download=False, scale='minmax', gauss_params=None, file_url=None):
+    def __init__(self, path, filename, label, download=False, scale='minmax'):
             
         """
         Load training dataset
         :param path: string with path to training set
+        :param filename: string with name of file
         :param label: string, column name for label
         :param scale: string; 'minmax', 'standard', or 'none'
-        :param dict: standard params of gaussian dgp
         :return: tensor with training data
         """
 
         self.path = path
 
-        # Load Synthetic dataset
-        if 'Synthetic' in self.path:
-            
-            '''
-            if download:
-                url = 'https://raw.githubusercontent.com/chirag126/data/main/'
-                self.mkdir_p(path)
-                file_download = url + 'dgp_synthetic.py'
-                # import ipdb; ipdb.set_trace()
-                urlretrieve(file_download, path + 'dgp_synthetic.py')
+        if download:
+            self.mkdir_p(path)
+            # ToDo: Port to dataverse
+            url = 'https://raw.githubusercontent.com/chirag126/data/main/'
+            file_download = url + filename
+            urlretrieve(file_download, path + filename)
 
-            if not os.path.isdir(path + 'dgp_synthetic.py'):
-                raise RuntimeError("Dataset not found. You can use download=True to download it")           
+        if not os.path.isfile(path + filename):
+            raise RuntimeError("Dataset not found. You can use download=True to download it")
 
-            from openxai import dgp_synthetic
-            
-            '''
-
-            if gauss_params is None:
-                gauss_params = {
-                    'n_samples': 2500,
-                    'dim': 20,
-                    'n_clusters': 10,
-                    'distance_to_center': 5,
-                    'test_size': 0.25,
-                    'upper_weight': 1,
-                    'lower_weight': -1,
-                    'seed': 564,
-                    'sigma': None,
-                    'sparsity': 0.25
-                }
-            
-            data_dict, data_dict_train, data_dict_test = dgp_synthetic.generate_gaussians(gauss_params['n_samples'],
-                                                        gauss_params['dim'],
-                                                        gauss_params['n_clusters'],
-                                                        gauss_params['distance_to_center'],
-                                                        gauss_params['test_size'],
-                                                        gauss_params['upper_weight'],
-                                                        gauss_params['lower_weight'],
-                                                        gauss_params['seed'],
-                                                        gauss_params['sigma'],
-                                                        gauss_params['sparsity']).dgp_vars()
-            
-            self.ground_truth_dict = data_dict
-            self.target = label
-            
-            if 'train' in filename:
-                data_dict = data_dict_train
-            elif 'test' in filename:
-                data_dict = data_dict_test
-            else:
-                raise NotImplementedError('The current version of DataLoader class only provides training and testing splits')
-                   
-            self.dataset = pd.DataFrame(data_dict['data'])
-            data_y = pd.DataFrame(data_dict['target'])
-            
-            names = []
-            for i in range(gauss_params['dim']):
-                name = 'x' + str(i)
-                names.append(name)
-                
-            self.dataset.columns = names
-            self.dataset['y'] = data_y
-            
-            # add additional Gaussian related aspects
-            self.probs = data_dict['probs']
-            self.masks = data_dict['masks']
-            self.weights = data_dict['weights']
-            self.masked_weights = data_dict['masked_weights']
-            self.cluster_idx = data_dict['cluster_idx']
-            
-        else:
-            if download:
-                self.mkdir_p(path)
-                if file_url is None:
-                    url = 'https://raw.githubusercontent.com/chirag126/data/main/'
-                    file_download = url + filename
-                    urlretrieve(file_download, path + filename)
-                else:
-                    download_file(file_url, path + filename)
-
-            if not os.path.isfile(path + filename):
-                raise RuntimeError("Dataset not found. You can use download=True to download it")
-
-            self.dataset = pd.read_csv(path + filename)
-            self.target = label
+        self.dataset = pd.read_csv(path + filename)
+        self.target = label
 
         # Save target and predictors
         self.X = self.dataset.drop(self.target, axis=1)
@@ -163,22 +82,15 @@ class TabularDataLoader(data.Dataset):
             self.data = self.scaler.transform(self.X)
         else:
             self.data = self.X.values
+
         self.targets = self.dataset[self.target]
 
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, idx):
-
-        # select correct row with idx
-        if isinstance(idx, torch.Tensor):
-            idx = idx.tolist()
-        
-        if 'Synthetic' in self.path:
-            return (self.data[idx], self.targets.values[idx], self.weights[idx], self.masks[idx],
-                    self.masked_weights[idx], self.probs[idx], self.cluster_idx[idx])
-        else:
-            return (self.data[idx], self.targets.values[idx])
+        idx = idx.tolist() if isinstance(idx, torch.Tensor) else idx
+        return (self.data[idx], self.targets.values[idx])
 
     def get_number_of_features(self):
         return self.data.shape[1]
@@ -197,48 +109,26 @@ class TabularDataLoader(data.Dataset):
                 raise 
 
 
-def return_loaders(data_name, download=False, batch_size=32, transform=None, scaler='minmax', gauss_params=None):
-                
-    # Create a dictionary with all available dataset names
-    dict = {
-            'adult': ('Adult', transform, 'income'),
-            'compas': ('COMPAS', transform, 'risk'),
-            'german': ('German_Credit_Data', transform, 'credit-risk'),
-            'heloc': ('Heloc', transform, 'RiskPerformance'),
-            'credit': ('Credit', transform, 'SeriousDlqin2yrs'),
-            'synthetic': ('Synthetic', transform, 'y'),
-            'rcdv': ('rcdv1980', transform, 'recid'),
-            'lending-club': ('lending-club', transform, 'loan_repaid'),
-            'student': ('student', transform, 'decision'),
-            }
-
-    urls = {
-            'rcdv-train': 'https://dataverse.harvard.edu/api/access/datafile/7093737',
-            'rcdv-test': 'https://dataverse.harvard.edu/api/access/datafile/7093739',
-            'lending-club-train': 'https://dataverse.harvard.edu/api/access/datafile/6767839',
-            'lending-club-test': 'https://dataverse.harvard.edu/api/access/datafile/6767838',
-            'student-train': 'https://dataverse.harvard.edu/api/access/datafile/7093733',
-            'student-test': 'https://dataverse.harvard.edu/api/access/datafile/7093734',
-            }
+def return_loaders(data_name, download=False, batch_size=32, scaler='minmax'):
+    """
+    Load training and test datasets as DataLoader objects
+    :param data_name: string with name of dataset
+    :param download: boolean, whether to download the dataset
+    :param batch_size: int, batch size
+    :param scaler: string; 'minmax', 'standard', or 'none'
+    :return: tuple with training and test dataloaders
+    """
+    labels = {'adult': 'income', 'compas': 'risk', 'gaussian': 'target', 'german': 'credit-risk',
+              'gmsc': 'SeriousDlqin2yrs', 'heart': 'TenYearCHD', 'heloc': 'RiskPerformance', 'pima': 'Outcome'}
     
-    if dict[data_name][0] == 'synthetic':
-        prefix = './data/' + dict[data_name][0] + '/'
-        file_train = 'train'
-        file_test = 'test'
-    else:
-        prefix = './data/' + dict[data_name][0] + '/'
-        file_train = data_name + '-train.csv'
-        file_test = data_name + '-test.csv'
+    prefix = f'./data/{data_name}/'
+    file_train, file_test = data_name + '-train.csv', data_name + '-test.csv'
 
-    dataset_train = TabularDataLoader(path=prefix, filename=file_train,
-                                      label=dict[data_name][2], scale=scaler,
-                                      gauss_params=gauss_params, download=download,
-                                      file_url=urls.get(file_train[:-4], None))
+    dataset_train = TabularDataLoader(path=prefix, filename=file_train, label=labels[data_name],
+                                      scale=scaler, download=download)
 
-    dataset_test = TabularDataLoader(path=prefix, filename=file_test,
-                                     label=dict[data_name][2], scale=scaler,
-                                     gauss_params=gauss_params, download=download,
-                                     file_url=urls.get(file_test[:-4], None))
+    dataset_test = TabularDataLoader(path=prefix, filename=file_test, label=labels[data_name],
+                                     scale=scaler, download=download)
 
     trainloader = DataLoader(dataset_train, batch_size=batch_size, shuffle=True)
     testloader = DataLoader(dataset_test, batch_size=batch_size, shuffle=False)
