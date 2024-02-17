@@ -27,6 +27,21 @@ import pickle
 
 tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
+def print_summary(model, trainloader, testloader):
+    # Get data
+    X_train, y_train = torch.FloatTensor(trainloader.dataset.data), trainloader.dataset.targets.to_numpy()
+    X_test, y_test = torch.FloatTensor(testloader.dataset.data), testloader.dataset.targets.astype(int)
+
+    # Get predictions
+    model.eval()
+    preds = (model(X_test)[:, 1] >= 0.5).to(int).detach().numpy()
+    preds_tr = (model(X_train)[:, 1] >= 0.5).to(int).detach().numpy()
+    test_acc, train_acc = (preds == y_test).mean(), (preds_tr == y_train).mean()
+
+    # Print summary
+    print(f'\nProportion of Class 1:\n\tTest Preds:\t{preds.mean():.4f}\n\tTest Set:\t{y_test.mean():.4f}')
+    print(f'Test Accuracy: {test_acc:.4f}')
+    print(f'Train Accuracy: {train_acc:.4f}')
 
 def generate_mask(explanation, top_k):
     if not isinstance(explanation, torch.Tensor):
