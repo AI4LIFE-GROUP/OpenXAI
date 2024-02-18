@@ -39,7 +39,7 @@ def print_summary(model, trainloader, testloader):
     test_acc, train_acc = (preds == y_test).mean(), (preds_tr == y_train).mean()
 
     # Print summary
-    print(f'\nProportion of Class 1:\n\tTest Preds:\t{preds.mean():.4f}\n\tTest Set:\t{y_test.mean():.4f}')
+    print(f'Proportion of Class 1:\n\tTest Preds:\t{preds.mean():.4f}\n\tTest Set:\t{y_test.mean():.4f}')
     print(f'Test Accuracy: {test_acc:.4f}')
     print(f'Train Accuracy: {train_acc:.4f}')
 
