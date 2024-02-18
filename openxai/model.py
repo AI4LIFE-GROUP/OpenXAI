@@ -29,7 +29,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
     :return: model
     """
     if pretrained:
-        os.makedirs('./pretrained', exist_ok=True)
+        os.makedirs('./models/pretrained', exist_ok=True)
         if data_name in ['synthetic', 'adult', 'compas', 'german', 'heloc', 'rcdv', 'lending-club', 'student']:
             r = requests.get(dataverse_prefix + dataverse_ids[ml_model][data_name], allow_redirects=True)
             model_path = f'./pretrained/{ml_model}_{data_name}.pt'
@@ -37,7 +37,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
             state_dict = torch.load(model_path, map_location=torch.device('cpu'))
             num_features = next(iter(state_dict.values()))[1]
             if ml_model == 'ann':
-                model = ArtificialNeuralNetwork(num_features, [100,100], n_class=2)
+                model = ArtificialNeuralNetwork(num_features, [100, 100])
             elif ml_model == 'lr':
                 model = LogisticRegression(num_features)
             model.load_state_dict(state_dict)
@@ -58,11 +58,13 @@ class LogisticRegression(nn.Module):
         :param n_class: int, number of classes
         '''
         super().__init__()
+        self.name = 'LogisticRegression'
+        self.abbrv = 'lr'
+
+        # Construct layers
         self.input_dim = input_dim
         self.n_class = n_class
         self.linear = nn.Linear(self.input_dim, self.n_class)
-        self.name = 'LogisticRegression'
-        self.abbrv = 'lr'
         
     def return_ground_truth_importance(self):
         return self.linear.weight[1, :] - self.linear.weight[0, :]
@@ -94,6 +96,8 @@ class ArtificialNeuralNetwork(nn.Module):
         :param n_class: int, number of classes
         """
         super().__init__()
+        self.name = 'ArtificialNeuralNetwork'
+        self.abbrv = 'ann'
         
         # Construct layers
         model_layers = []
@@ -104,8 +108,6 @@ class ArtificialNeuralNetwork(nn.Module):
             previous_layer = layer
         model_layers.append(nn.Linear(previous_layer, n_class))
         self.network = nn.Sequential(*model_layers)
-        self.name = 'ArtificialNeuralNetwork'
-        self.abbrv = 'ann'
     
     def forward(self, x):
         return F.softmax(self.network(x), dim=-1)
