@@ -1,37 +1,24 @@
-import csv
-import io
 import os
-import subprocess
+from io import StringIO
+import requests
 import torch
 import pandas as pd
 from errno import EEXIST
 import torch.utils.data as data
 from torch.utils.data import DataLoader
-from urllib.request import urlretrieve
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-def download_file(url, filename):
-    # Download the file from the URL
-    subprocess.call(["wget", "-O", filename, url])
-
-    with open(filename, "r") as f:
-        data = f.read()
-
-    # Detect the file format
-    if '\t' in data:  # if the file is tab delimited
-        # Convert the file to CSV format
-        data = io.StringIO(data)
-        reader = csv.reader(data, delimiter='\t')
-        output = io.StringIO()
-        writer = csv.writer(output)
-        for row in reader:
-            writer.writerow(row)
-        data = output.getvalue()
-
-        # Save the file to disk
-        with open(filename, 'w', newline='') as f:
-            f.write(data)
-
+dataverse_prefix = 'https://dataverse.harvard.edu/api/access/datafile/'
+dataverse_ids = {
+    'train': {
+        'adult': '8550940', 'compas': '8550936', 'gaussian': '8550929', 'german': '8550931',
+        'gmsc': '8550934', 'heart': '8550932', 'heloc': '8550942', 'pima': '8550937',
+    },
+    'test': {
+        'adult': '8550933', 'compas': '8550944', 'gaussian': '8550941', 'german': '8550930',
+        'gmsc': '8550939', 'heart': '8550935', 'heloc': '8550943', 'pima': '8550938',
+    }
+}
 
 class TabularDataLoader(data.Dataset):
     def __init__(self, path, filename, label, download=False, scale='minmax'):
@@ -44,15 +31,12 @@ class TabularDataLoader(data.Dataset):
         :param scale: string; 'minmax', 'standard', or 'none'
         :return: tensor with training data
         """
-
-        self.path = path
-
         if download:
             self.mkdir_p(path)
-            # ToDo: Port to dataverse
-            url = 'https://raw.githubusercontent.com/chirag126/data/main/'
-            file_download = url + filename
-            urlretrieve(file_download, path + filename)
+            data_name, split = filename.split('.')[0].split('-')
+            r = requests.get(dataverse_prefix + dataverse_ids[split][data_name], allow_redirects=True)
+            df = pd.read_csv(StringIO(r.text), sep='\t')
+            df.to_csv(path + filename, index=False)
 
         if not os.path.isfile(path + filename):
             raise RuntimeError("Dataset not found. You can use download=True to download it")
@@ -60,10 +44,8 @@ class TabularDataLoader(data.Dataset):
         self.dataset = pd.read_csv(path + filename)
         self.target = label
 
-        # Save target and predictors
+        # Split data into features and target
         self.X = self.dataset.drop(self.target, axis=1)
-        
-        # Save feature names
         self.feature_names = self.X.columns.to_list()
         self.target_name = label
 

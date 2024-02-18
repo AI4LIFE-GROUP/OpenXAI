@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import copy
+import os
 from sklearn.metrics import f1_score, accuracy_score
 from openxai.dataloader import return_loaders
 from openxai.model import LogisticRegression
@@ -8,7 +9,7 @@ from openxai.model import ArtificialNeuralNetwork
 from openxai.experiment_utils import print_summary
 
 def train_model(ml_model, dataset, learning_rate, epochs, batch_size, scaler='minmax', seed=0,
-             pos_class_weight=0.5, mean_prediction_bound=1.0, warmup=5, verbose=False):
+                pos_class_weight=0.5, mean_prediction_bound=1.0, warmup=5, verbose=False):
     """
     Train a (binary classificaiton) model
     :param ml_model: string with abbreviated name of model; 'lr' or 'ann'
@@ -25,8 +26,10 @@ def train_model(ml_model, dataset, learning_rate, epochs, batch_size, scaler='mi
     :return: trained model, best accuracy, best epoch
     """
     # Dataloaders
-    trainloader, testloader = return_loaders(dataset, download=False,
-                                             batch_size=batch_size, scaler=scaler)
+    file_path = f'./data/{dataset}/{dataset}'
+    all_splits_downloaded = os.path.exists(file_path+'-train.csv') and os.path.exists(file_path+'-test.csv')
+    download = False if all_splits_downloaded else True
+    trainloader, testloader = return_loaders(dataset, download, batch_size, scaler)
     input_size = trainloader.dataset.data.shape[-1]
     loaders = {'train': trainloader, 'test': testloader}
 

@@ -11,13 +11,13 @@ activation_functions = {'relu': nn.ReLU(), 'leaky_relu': nn.LeakyReLU(),
 dataverse_prefix = 'https://dataverse.harvard.edu/api/access/datafile/'
 dataverse_ids = {
     'lr': {
-        'synthetic': '6718576', 'adult': '6718044', 'compas': '6718042', 'german': '6718043',
-        'heloc': '6718046', 'rcdv': '7093736', 'lending-club': '6990766', 'student': '7093732',
+        'adult': '8550955', 'compas': '8550949', 'gaussian': '8550960', 'german': '8550945',
+        'gmsc': '8550948', 'heart': '8550956', 'heloc': '8550950', 'pima': '8550959'
     },
     'ann': {
-        'synthetic': '6718575', 'adult': '6718041', 'compas': '6718040', 'german': '6718047',
-        'heloc': '6718045', 'rcdv': '7093738', 'lending-club': '6990764', 'student': '7093735'
-    }
+        'adult': '8550958', 'compas': '8550951', 'gaussian': '8550957', 'german': '8550946',
+        'gmsc': '8550947', 'heart': '8550954', 'heloc': '8550952', 'pima': '8550953'
+    },
 }
 
 def LoadModel(data_name: str, ml_model, pretrained: bool = True):
@@ -29,13 +29,14 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
     :return: model
     """
     if pretrained:
-        os.makedirs('./models/pretrained', exist_ok=True)
-        if data_name in ['synthetic', 'adult', 'compas', 'german', 'heloc', 'rcdv', 'lending-club', 'student']:
+        model_path = './models/pretrained/'
+        os.makedirs(model_path, exist_ok=True)
+        if data_name in dataverse_ids[ml_model]:
             r = requests.get(dataverse_prefix + dataverse_ids[ml_model][data_name], allow_redirects=True)
-            model_path = f'./pretrained/{ml_model}_{data_name}.pt'
-            open(model_path, 'wb').write(r.content)
-            state_dict = torch.load(model_path, map_location=torch.device('cpu'))
-            num_features = next(iter(state_dict.values()))[1]
+            model_filename = f'{ml_model}_{data_name}.pt'
+            open(model_path+model_filename, 'wb').write(r.content)
+            state_dict = torch.load(model_path+model_filename, map_location=torch.device('cpu'))
+            num_features = next(iter(state_dict.values())).shape[1]
             if ml_model == 'ann':
                 model = ArtificialNeuralNetwork(num_features, [100, 100])
             elif ml_model == 'lr':
@@ -43,7 +44,7 @@ def LoadModel(data_name: str, ml_model, pretrained: bool = True):
             model.load_state_dict(state_dict)
         else:
             raise NotImplementedError(
-                 'The current version of >LoadModel< does not support this data set.')
+                f'The current version of >LoadModel< does not support this data set for {ml_model.upper()} models.')
     else:
         raise NotImplementedError(
              'The current version of >LoadModel< does not support training a ML model from scratch, yet.')

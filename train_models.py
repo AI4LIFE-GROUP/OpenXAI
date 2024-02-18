@@ -17,7 +17,7 @@ pos_class_weights = {
 }
 
 def main(ml_models=['lr', 'ann'], names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima'],
-         epochs = 100, learning_rate = 0.001, scaler = 'minmax', seed = 0, warmup = 5, verbose=False):
+         epochs = 1, learning_rate = 0.001, scaler = 'minmax', seed = 0, warmup = 5, verbose=False):
     for ml_model in ml_models:
         for name in names:
             print(f'Training {ml_model} on {name} dataset')
