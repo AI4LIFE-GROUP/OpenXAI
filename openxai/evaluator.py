@@ -17,7 +17,7 @@ class Evaluator():
         self.model = model
         self.explainer = explainer
         if hasattr(model, 'return_ground_truth_importance'):
-            self.gt_feature_importances = self.model.return_ground_truth_importance(self.inputs)
+            self.gt_feature_importances = self.model.return_ground_truth_importance()
         self.explanation_x_f = self.input_dict['explanation_x']
         self.y_pred = self.input_dict['y_pred']
 
