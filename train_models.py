@@ -23,7 +23,7 @@ pos_class_weights = {
     'gmsc': 0.25, 'heart': 0.75, 'heloc': 0.5, 'pima': 0.65
 }
 
-def main(ml_models, names):
+if __name__ == "__main__":
     for ml_model in ml_models:
         for name in names:
             print(f'Training {ml_model} on {name} dataset')
@@ -44,6 +44,3 @@ def main(ml_models, names):
                 os.makedirs(model_folder_name)
             torch.save(model.state_dict(),  model_folder_name + model_file_name)
             print(f'File saved to {model_folder_name + model_file_name}')
-
-if __name__ == "__main__":
-    main(ml_models, names)
