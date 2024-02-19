@@ -36,5 +36,5 @@ ig_baseline = None  # This parameter will be inferred later on
 ## Perturbation class parameters
 perturbation_mean = 0.0
 perturbation_std = 0.05
-perturbation_flip_percentage = 0.03
+perturbation_flip_percentage = np.sqrt(2/np.pi)*perturbation_std
 perturbation_max_distance = 0.4
