@@ -11,13 +11,13 @@ class SmoothGrad(Explainer):
     Captum documentation: https://captum.ai/api/noise_tunnel.html
     """
 
-    def __init__(self, model, num_samples: int = 500, standard_deviation: float = 0.5) -> None:
+    def __init__(self, model, n_samples: int = 500, standard_deviation: float = 0.5) -> None:
         """
         Args:
             model (torch.nn.Module): model on which to make predictions
         """
 
-        self.num_samples = num_samples
+        self.n_samples = n_samples
         self.standard_deviation = standard_deviation
 
         super(SmoothGrad, self).__init__(model)
@@ -39,7 +39,7 @@ class SmoothGrad(Explainer):
         attribution = noise_tunnel.attribute(x,
                                              nt_type='smoothgrad',
                                              target=label,
-                                             nt_samples=self.num_samples,
+                                             nt_samples=self.n_samples,
                                              stdevs=self.standard_deviation)
 
         return attribution
