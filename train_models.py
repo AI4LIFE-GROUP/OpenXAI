@@ -2,7 +2,14 @@ import torch
 import os
 from openxai.train import train_model
 
-# add to config
+# Set parameters
+ml_models = ['lr', 'ann']
+names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima']
+epochs = 100
+learning_rate = 0.001
+scaler = 'minmax'
+seed = 0
+warmup = 5
 mean_pred_bounds = {
     'adult': 0.15, 'compas': 0.93, 'gaussian': 0.4, 'german': 0.9,
     'gmsc': 0.96, 'heart': 0.1, 'heloc': 0.4, 'pima': 0.3
@@ -16,8 +23,7 @@ pos_class_weights = {
     'gmsc': 0.25, 'heart': 0.75, 'heloc': 0.5, 'pima': 0.65
 }
 
-def main(ml_models=['lr', 'ann'], names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima'],
-         epochs = 1, learning_rate = 0.001, scaler = 'minmax', seed = 0, warmup = 5, verbose=False):
+def main(ml_models, names):
     for ml_model in ml_models:
         for name in names:
             print(f'Training {ml_model} on {name} dataset')
@@ -26,7 +32,7 @@ def main(ml_models=['lr', 'ann'], names = ['adult', 'compas', 'gaussian', 'germa
             batch, pcw, mpb = batch_sizes[name], pos_class_weights[name], mean_pred_bounds[name]
             model, best_acc, best_epoch = train_model(ml_model, name, learning_rate, epochs, batch,
                                                       scaler=scaler, seed=seed, pos_class_weight=pcw,
-                                                      mean_prediction_bound=mpb, warmup=warmup, verbose=verbose)
+                                                      mean_prediction_bound=mpb, warmup=warmup, verbose=False)
             
             # Save Model
             params = {'ep': epochs, 'lr': learning_rate, 'batch': batch, 'seed': seed, 'pcw': pcw,
@@ -40,4 +46,4 @@ def main(ml_models=['lr', 'ann'], names = ['adult', 'compas', 'gaussian', 'germa
             print(f'File saved to {model_folder_name + model_file_name}')
 
 if __name__ == "__main__":
-    main()
+    main(ml_models, names)
