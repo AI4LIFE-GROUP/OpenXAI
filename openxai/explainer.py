@@ -26,7 +26,7 @@ default_param_dicts = {
         'absolute_value': True
     },
     'sg': {
-        'num_samples': 100,
+        'n_samples': 100,
         'standard_deviation': 0.005
     },
     'itg': {},
