@@ -20,6 +20,15 @@ dataverse_ids = {
     }
 }
 
+feature_types = {
+    'adult': ['c'] * 6 + ['d'] * 7, 'german': ['c'] * 8 + ['d'] * 12,
+    'compas': ['c', 'd', 'c', 'c', 'd', 'd', 'd'], 'gaussian': ['c'] * 20,
+    'gmsc': ['c'] * 10, 'heloc': ['c'] * 23, 'pima': ['c'] * 8,
+    'heart': ['d', 'c', 'c', 'd', 'c'] + ['d'] * 4 + ['c'] * 6,
+}
+labels = {'adult': 'income', 'compas': 'risk', 'gaussian': 'target', 'german': 'credit-risk',
+          'gmsc': 'SeriousDlqin2yrs', 'heart': 'TenYearCHD', 'heloc': 'RiskPerformance', 'pima': 'Outcome'}
+
 class TabularDataLoader(data.Dataset):
     def __init__(self, path, filename, label, download=False, scale='minmax'):
             
@@ -31,10 +40,10 @@ class TabularDataLoader(data.Dataset):
         :param scale: string; 'minmax', 'standard', or 'none'
         :return: tensor with training data
         """
+        self.data_name, self.split = filename.split('.')[0].split('-')
         if download:
             self.mkdir_p(path)
-            data_name, split = filename.split('.')[0].split('-')
-            r = requests.get(dataverse_prefix + dataverse_ids[split][data_name], allow_redirects=True)
+            r = requests.get(dataverse_prefix + dataverse_ids[self.split][self.data_name], allow_redirects=True)
             df = pd.read_csv(StringIO(r.text), sep='\t')
             df.to_csv(path + filename, index=False)
 
@@ -47,6 +56,7 @@ class TabularDataLoader(data.Dataset):
         # Split data into features and target
         self.X = self.dataset.drop(self.target, axis=1)
         self.feature_names = self.X.columns.to_list()
+        self.feature_types = feature_types[self.data_name]
         self.target_name = label
 
         # Transform data
@@ -100,8 +110,6 @@ def return_loaders(data_name, download=False, batch_size=32, scaler='minmax'):
     :param scaler: string; 'minmax', 'standard', or 'none'
     :return: tuple with training and test dataloaders
     """
-    labels = {'adult': 'income', 'compas': 'risk', 'gaussian': 'target', 'german': 'credit-risk',
-              'gmsc': 'SeriousDlqin2yrs', 'heart': 'TenYearCHD', 'heloc': 'RiskPerformance', 'pima': 'Outcome'}
     
     prefix = f'./data/{data_name}/'
     file_train, file_test = data_name + '-train.csv', data_name + '-test.csv'
