@@ -1,11 +1,7 @@
 import numpy as np
 import torch
 import torch.distributions as tdist
-from typing import Any, Callable, Tuple, Union, cast
-from torch import Tensor
 from torch import nn
-from random import random
-
 
 class BasePerturbation:
     '''
@@ -37,8 +33,8 @@ class UniformPerturbation(BasePerturbation):
         max_distance : the maximum distance between original sample and purturbed samples.
         Algorithmic Resource Link : http://extremelearning.com.au/how-to-generate-uniformly-random-points-on-n-spheres-and-n-balls/
         '''
-        assert len(feature_mask) == len(
-            original_sample), "mask size == original sample in get_perturbed_inputs for {}".format(self.__class__)
+        assert len(feature_mask) == len(original_sample),\
+            f"mask size == original sample in get_perturbed_inputs for {self.__class__}"
         gaussian_generator = tdist.Normal(torch.tensor(torch.empty(original_sample.shape).fill_(0)),
                                           torch.tensor(torch.empty(original_sample.shape).fill_(1)))
         gaussian_samples = gaussian_generator.sample((num_samples,))
@@ -61,9 +57,9 @@ class RandomPerturbation(BasePerturbation):
         num_samples : number of perturbed samples.
         max_distance : the maximum distance between original sample and purturbed samples.
         '''
-        assert len(feature_mask) == len(
-            original_sample), "mask size == original sample in get_perturbed_inputs for {}".format(self.__class__)
-        
+        assert len(feature_mask) == len(original_sample),\
+            f"mask size == original sample in get_perturbed_inputs for {self.__class__}"
+
         if self.dist == 'gaussian':
             gaussian_generator = tdist.Normal(torch.tensor(torch.empty(original_sample.shape).fill_(0)),
                                               torch.tensor(torch.empty(original_sample.shape).fill_(1)))
@@ -130,17 +126,16 @@ class NormalPerturbation(BasePerturbation):
         pass
     
     def get_perturbed_inputs(self, original_sample: torch.FloatTensor, feature_mask: torch.BoolTensor,
-                             num_samples: int, feature_metadata: list, max_distance: int = None) -> torch.tensor:
+                             num_samples: int, feature_metadata: list) -> torch.tensor:
         '''
         feature mask : this indicates the static features
         num_samples : number of perturbed samples.
         max_distance : the maximum distance between original sample and purturbed samples.
         '''
         feature_type = feature_metadata
-        assert len(feature_mask) == len(
-            original_sample), "mask size == original sample in get_perturbed_inputs for {}".format(self.__class__)
+        assert len(feature_mask) == len(original_sample),\
+            f"mask size == original sample in get_perturbed_inputs for {self.__class__}"
         
-        perturbed_cols = []
         continuous_features = torch.tensor([i == 'c' for i in feature_type])
         discrete_features = torch.tensor([i == 'd' for i in feature_type])
         
@@ -161,7 +156,6 @@ class NormalPerturbation(BasePerturbation):
         
         return perturbed_samples
 
-
 class NewDiscrete_NormalPerturbation(BasePerturbation):
     def __init__(self, data_format, mean: int = 0, std_dev: float = 0.05, flip_percentage: float = 0.3):
         self.mean = mean
@@ -177,8 +171,7 @@ class NewDiscrete_NormalPerturbation(BasePerturbation):
         pass
     
     def get_perturbed_inputs(self, original_sample: torch.FloatTensor, feature_mask: torch.BoolTensor,
-                             num_samples: int, feature_metadata: dict,
-                             max_distance: int = None) -> torch.tensor:
+                             num_samples: int, feature_metadata: dict) -> torch.tensor:
         '''
         feature mask : this indicates the static features
         num_samples : number of perturbed samples.
@@ -191,8 +184,8 @@ class NewDiscrete_NormalPerturbation(BasePerturbation):
         feature_type = feature_metadata['feature_types']
         feature_num_cols = feature_metadata['feature_n_cols']
         
-        assert len(feature_mask) == len(
-            original_sample), "mask size == original sample in get_perturbed_inputs for {}".format(self.__class__)
+        assert len(feature_mask) == len(original_sample),\
+            f"mask size == original sample in get_perturbed_inputs for {self.__class__}"
         
         perturbations = original_sample
         original_sample_dim = original_sample.shape[0]
@@ -236,17 +229,17 @@ class NewDiscrete_NormalPerturbation(BasePerturbation):
                     
                     # choose new column value for samples that are flipped
                     for sample_ind in range(num_samples):
-                        samples_to_flip[sample_ind, flip_to_this_col_ind[sample_ind]] = samples_to_flip[
-                            sample_ind, discrete_col_ind]
+                        samples_to_flip[sample_ind, flip_to_this_col_ind[sample_ind]] =\
+                            samples_to_flip[sample_ind, discrete_col_ind]
                         
-                        assert torch.sum(samples_to_flip[sample_ind, :]) == 0 or torch.sum(
-                            samples_to_flip[sample_ind, :]) == 2
+                        assert torch.sum(samples_to_flip[sample_ind, :]) == 0\
+                            or torch.sum(samples_to_flip[sample_ind, :]) == 2
                 
                 feature_group_mask = torch.tensor(
                     [first_col_ind <= j < last_col_ind for j in range(original_sample_dim)])
                 
-                perturbations = perturbations * (~feature_group_mask) + feature_group_mask * torch.abs(
-                    perturbations - (samples_to_flip))
+                perturbations = perturbations * (~feature_group_mask)\
+                    + feature_group_mask * torch.abs(perturbations - (samples_to_flip))
             
             feature_ind += feature_num_cols[d]
         
@@ -254,7 +247,6 @@ class NewDiscrete_NormalPerturbation(BasePerturbation):
         perturbed_samples = original_sample * feature_mask + perturbations * (~feature_mask)
         
         return perturbed_samples
-
 
 class MarginalPerturbation(BasePerturbation):
     def __init__(self, data_format, dist_per_feature):
@@ -264,8 +256,8 @@ class MarginalPerturbation(BasePerturbation):
         dist_per_feature : vector of distribution generators (tdist under torch.distributions).
         Note : These distributions are assumed to have zero mean since they get added to the original sample.
         '''
-        assert sum([hasattr(i.__class__, 'sample') for i in dist_per_feature]) == len(
-            dist_per_feature), "Only distributions with sample function are supported for {}".format(self.__class__)
+        assert sum([hasattr(i.__class__, 'sample') for i in dist_per_feature]) == len(dist_per_feature),\
+            f"Only distributions with sample function are supported for {self.__class__}"
         self.dist_per_feature = dist_per_feature
     
     def _filter_out_of_range_samples(self, original_sample, perturbed_samples, max_distance):
@@ -278,15 +270,15 @@ class MarginalPerturbation(BasePerturbation):
         perturbed_samples = perturbed_samples * (distance_from_original_sample_unsqueezed <= max_distance)
         return perturbed_samples[perturbed_samples.sum(dim=1) != 0]
     
-    def get_perturbed_inputs(self, original_sample: torch.FloatTensor, feature_mask: torch.BoolTensor, num_samples: int,
-                             max_distance: int) -> torch.tensor:
+    def get_perturbed_inputs(self, original_sample: torch.FloatTensor, feature_mask: torch.BoolTensor,
+                             num_samples: int, max_distance: int) -> torch.tensor:
         '''
         feature mask : this indicates the static features
         num_samples : number of perturbed samples.
         max_distance : the maximum distance between original sample and purturbed samples.
         '''
-        assert len(feature_mask) == len(
-            original_sample), "mask size == original sample in get_perturbed_inputs for {}".format(self.__class__)
+        assert len(feature_mask) == len(original_sample),\
+            f"mask size == original sample in get_perturbed_inputs for {self.__class__}"
         
         perturbed_cols = []
         for i, _ in enumerate(original_sample):
@@ -294,17 +286,3 @@ class MarginalPerturbation(BasePerturbation):
         perturbed_samples = original_sample + torch.cat(perturbed_cols, 1) * (~feature_mask)
         
         return self._filter_out_of_range_samples(original_sample, perturbed_samples, max_distance)
-
-
-class AdversarialPerturbation(BasePerturbation):
-    def __init__(self, data_format):
-        super(UniformPerturbation, self).__init__(data_format)
-    
-    def get_perturbed_inputs(self, feature_mask, num_samples, max_distance):
-        '''
-        feature mask : this indicates the static features
-        num_samples : number of perturbed samples.
-        max_distance : the maximum distance between original sample and purturbed samples.
-        '''
-        perturbed_samples = []
-        return perturbed_samples
