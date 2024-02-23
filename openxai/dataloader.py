@@ -57,6 +57,13 @@ class TabularDataLoader(data.Dataset):
         self.X = self.dataset.drop(self.target, axis=1)
         self.feature_names = self.X.columns.to_list()
         self.feature_types = feature_types[self.data_name]
+        if self.data_name == 'german':
+            self.feature_metadata = {
+                'feature_types': self.feature_types,
+                'feature_n_cols': [1, 1, 1, 1, 1, 1, 1, 1, 4, 5, 10, 5, 5, 4, 3, 4, 3, 3, 4, 2]
+            }
+        else:
+            self.feature_metadata = self.feature_types
         self.target_name = label
 
         # Transform data
