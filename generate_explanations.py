@@ -33,9 +33,10 @@ if __name__ == '__main__':
     methods = ['control', 'grad', 'ig', 'itg', 'sg', 'shap', 'lime']
     data_names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima']
     model_names = ['lr', 'ann']
-    n_test_samples = 500
+    n_test_samples = 1000
     for data_name in data_names:
         for model_name in model_names:
+            print(f"Data: {data_name}, Model: {model_name}")
             explanations = GenerateExplanations(methods, data_name, model_name, n_test_samples)
             for method, explanation in explanations.items():
                 filename = f'explanations/{data_name}_{model_name}_{method}_{n_test_samples}.npy'
