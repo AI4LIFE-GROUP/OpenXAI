@@ -1,9 +1,9 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from captum.attr import IntegratedGradients as IG_Captum
 
 
-class IntegratedGradients(Explainer):
+class IntegratedGradients(BaseExplainer):
     """
     Provides integrated gradient attributions.
     Original paper: https://arxiv.org/abs/1703.01365

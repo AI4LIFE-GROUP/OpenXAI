@@ -1,10 +1,10 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from captum.attr import NoiseTunnel
 from captum.attr import Saliency
 
 
-class SmoothGrad(Explainer):
+class SmoothGrad(BaseExplainer):
     """
     Provides SmoothGrad attributions.
     Original paper: https://arxiv.org/abs/1706.03825

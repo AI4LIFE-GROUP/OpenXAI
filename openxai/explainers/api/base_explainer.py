@@ -2,7 +2,7 @@ import torch
 from abc import ABC, abstractmethod
 
 
-class Explainer(ABC):
+class BaseExplainer(ABC):
     """
     Abstract class to implement custom explanation methods for a given.
     Parameters
@@ -22,7 +22,7 @@ class Explainer(ABC):
         self.model = mlmodel
 
     @abstractmethod
-    def get_explanation(self, inputs: torch.tensor, label: torch.Tensor):
+    def get_explanation(self, inputs: torch.Tensor, label: torch.Tensor):
         """
         Generate explanations for given input/s.
         Parameters

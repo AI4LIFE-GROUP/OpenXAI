@@ -1,9 +1,9 @@
 import torch
 from captum.attr import Saliency as Gradient_Captum
-from ...api import Explainer
+from ...api import BaseExplainer
 
 
-class Gradient(Explainer):
+class Gradient(BaseExplainer):
     """
     A baseline approach for computing input attribution.
     It returns the gradients with respect to inputs.

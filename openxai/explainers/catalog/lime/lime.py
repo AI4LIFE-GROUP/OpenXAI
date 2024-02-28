@@ -1,14 +1,13 @@
 import numpy as np
 import torch
-from tqdm import tqdm
-from ... api import Explainer
+from ...api import BaseExplainer
 
 # import lime
 from .lime_package import lime_tabular
 from .lime_package import lime_image
 
 
-class LIME(Explainer):
+class LIME(BaseExplainer):
     """
     This class gets explanations for tabular data. The explanations are generated according to Ribeiro et al's tabular
     sampling algorithm.
@@ -50,8 +49,9 @@ class LIME(Explainer):
             num_features = all_data.shape[1]
             attribution_scores = [np.zeros(all_data.shape) for j in range(self.output_dim)]
 
-            for i in tqdm(range(all_data.shape[0])):
+            for i in range(all_data.shape[0]):
                 exp = self.explainer.explain_instance(all_data[i, :], self.model,
+                                                      num_samples=self.n_samples,
                                                       num_features=num_features)
 
                 # bring explanations into data order (since LIME automatically orders according to highest importance)
@@ -63,7 +63,7 @@ class LIME(Explainer):
             return torch.FloatTensor(attribution_scores[1])
         else:
             attribution_scores = []
-            for i in tqdm(range(all_data.shape[0])):
+            for i in range(all_data.shape[0]):
                 img = all_data  # .detach().numpy()
                 # img = np.transpose(img, (1, 2, 0)).astype('double')
 

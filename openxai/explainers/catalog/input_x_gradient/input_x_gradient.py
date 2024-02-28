@@ -1,9 +1,9 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from captum.attr import InputXGradient as InputXGradient_Captum
 
 
-class InputTimesGradient(Explainer):
+class InputTimesGradient(BaseExplainer):
     """
     A baseline approach for computing the attribution.
     It multiplies input with the gradient with respect to input.

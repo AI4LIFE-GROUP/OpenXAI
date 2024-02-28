@@ -1,1 +1,1 @@
-from .base_explainer import Explainer
+from .base_explainer import BaseExplainer

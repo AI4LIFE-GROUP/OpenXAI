@@ -1,9 +1,9 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from torchray.attribution.excitation_backprop import excitation_backprop
 
 
-class EBP(Explainer):
+class EBP(BaseExplainer):
     """
     Provides excitation backpropagation.
     Excitation backprop paper: https://arxiv.org/abs/1608.00507

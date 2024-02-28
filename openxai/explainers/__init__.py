@@ -1,4 +1,4 @@
-from .api import Explainer
+from .api import BaseExplainer
 from .catalog import (
     Gradient,
     SmoothGrad,

@@ -1,9 +1,9 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from captum.attr import LRP as LRP_Captum
 
 
-class LRP(Explainer):
+class LRP(BaseExplainer):
     """
     Provides layer-wise relevance propagation explanations with respect to the input layer.
     https://arxiv.org/abs/1604.00825

@@ -7,11 +7,11 @@
 #from shap import KernelExplainer
 
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 from captum.attr import KernelShap
 
 
-class SHAPExplainerC(Explainer):
+class SHAPExplainerC(BaseExplainer):
     '''
     param: model: model object
     param: data: pandas data frame or numpy array
@@ -19,9 +19,7 @@ class SHAPExplainerC(Explainer):
     param: feature_perturbation: str, 'tree_path_dependent' or 'interventional'
     '''
 
-    def __init__(self, model, baseline_data: torch.FloatTensor = None,
-                 model_impl: str = 'torch',
-                 n_samples=500) -> None:
+    def __init__(self, model, model_impl: str = 'torch', n_samples=500) -> None:
         super().__init__(model)
         self.n_samples = n_samples
         if model_impl == 'torch':

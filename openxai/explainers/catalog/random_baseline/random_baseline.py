@@ -1,8 +1,8 @@
 import torch
-from ...api import Explainer
+from ...api import BaseExplainer
 
 
-class RandomBaseline(Explainer):
+class RandomBaseline(BaseExplainer):
     """
     A control baseline that returns a random explanation sampled independently of the 
     input and predictive model.

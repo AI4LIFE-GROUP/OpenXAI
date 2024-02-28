@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from torch import nn
 from torch.nn import functional as F
-from .base_explainer import BaseExplainer
+from ...api import BaseExplainer
 from shap import KernelExplainer
 from shap import DeepExplainer
 
