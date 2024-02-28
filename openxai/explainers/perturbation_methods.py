@@ -130,7 +130,6 @@ class NormalPerturbation(BasePerturbation):
         '''
         feature mask : this indicates the static features
         num_samples : number of perturbed samples.
-        max_distance : the maximum distance between original sample and purturbed samples.
         '''
         feature_type = feature_metadata
         assert len(feature_mask) == len(original_sample),\
@@ -140,9 +139,7 @@ class NormalPerturbation(BasePerturbation):
         discrete_features = torch.tensor([i == 'd' for i in feature_type])
         
         # Processing continuous columns
-        mean = self.mean
-        std_dev = self.std_dev
-        perturbations = torch.normal(mean, std_dev,
+        perturbations = torch.normal(self.mean, self.std_dev,
                                      [num_samples, len(feature_type)]) * continuous_features + original_sample
         
         # Processing discrete columns
@@ -175,7 +172,6 @@ class NewDiscrete_NormalPerturbation(BasePerturbation):
         '''
         feature mask : this indicates the static features
         num_samples : number of perturbed samples.
-        max_distance : the maximum distance between original sample and purturbed samples.
         feature_type : list containing metadata on which features are continuous vs. discrete
         feature_num_cols: list containing metadata on how many (potentially one-hot encoded)
             columns correspond to each feature
