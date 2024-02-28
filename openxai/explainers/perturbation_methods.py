@@ -3,6 +3,13 @@ import torch
 import torch.distributions as tdist
 from torch import nn
 
+def get_perturb_method(std, data_name):
+    flip = np.sqrt(2/np.pi)*std
+    if data_name == 'german':
+        return NewDiscrete_NormalPerturbation("tabular", mean=0.0, std_dev=std, flip_percentage=flip)
+    else:
+        return NormalPerturbation("tabular", mean=0.0, std_dev=std, flip_percentage=flip)
+
 class BasePerturbation:
     '''
     Base Class for perturbation methods.
