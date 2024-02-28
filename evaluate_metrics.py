@@ -7,14 +7,8 @@ from openxai.model import LoadModel
 from openxai.dataloader import return_loaders
 from openxai.explainer import Explainer
 from openxai.evaluator import Evaluator, ground_truth_metrics, prediction_metrics, stability_metrics
-from openxai.explainers.perturbation_methods import NormalPerturbation, NewDiscrete_NormalPerturbation
+from openxai.explainers.perturbation_methods import get_perturb_method
 
-def get_perturb_method(std, data_name):
-    flip = np.sqrt(2/np.pi)*std
-    if data_name == 'german':
-        return NewDiscrete_NormalPerturbation("tabular", mean=0.0, std_dev=std, flip_percentage=flip)
-    else:
-        return NormalPerturbation("tabular", mean=0.0, std_dev=std, flip_percentage=flip)
 
 def _set_kwargs(metric):
     inputs = testloader.dataset.data[:n_test]
@@ -123,13 +117,10 @@ if __name__ == '__main__':
                     # Evaluate metric
                     evaluator = Evaluator(model, metric=metric)
                     score, mean_score = evaluator.evaluate(**kwargs)
-                    if np.isnan(score).any():
-                        num_nans = np.sum(np.isnan(score))
-                        print(f"{num_nans} NaNs in {metric} for {model_name} and {data_name}")
-                        score = score[~np.isnan(score)]
                     std_err = np.std(score) / np.sqrt(len(score))
                     print(f"{metric}: {mean_score:.2f}\u00B1{std_err:.2f}")
-                    print(f"log({metric}): {np.log(mean_score):.2f}\u00B1{np.log(std_err):.2f}")
+                    if metric in stability_metrics:
+                        print(f"log({metric}): {np.log(mean_score):.2f}\u00B1{np.log(std_err):.2f}")
 
                     # Save results
                     if metric in stability_metrics:
