@@ -73,6 +73,9 @@ class LogisticRegression(nn.Module):
     def forward(self, x):
         return F.softmax(self.linear(x), dim=-1)
     
+    def predict_with_logits(self, x):
+        return self.linear(x)
+    
     def predict(self, data):
         """
         Predict method required for CFE-Models
@@ -110,22 +113,31 @@ class ArtificialNeuralNetwork(nn.Module):
         model_layers.append(nn.Linear(previous_layer, n_class))
         self.network = nn.Sequential(*model_layers)
     
+    def predict_layer(self, x, hidden_layer_idx=0, post_act=True):
+        """
+        Returns the representation of the input tensor at the specified layer
+        :param x: torch.tensor, input tensor
+        :param layer: int, layer number
+        :param post_act: bool, whether to return the activations before or after the activation function
+        """
+        if hidden_layer_idx >= len(self.network) // 2:
+            raise ValueError(f'The model has only {len(self.network) // 2} hidden layers, but hidden layer {hidden_layer_idx} was requested (indexing starts at 0).')
+        
+        network_idx = 2 * hidden_layer_idx + int(post_act)
+        return self.network[:network_idx+1](x)
+    
     def forward(self, x):
         return F.softmax(self.network(x), dim=-1)
     
     def predict_with_logits(self, x):
         return self.network(x)
     
-    def predict_proba(self, data):
+    def predict_proba(self, x):
         # Currently used by SHAP
-        input = data if torch.is_tensor(data) else torch.from_numpy(np.array(data))
+        input = x if torch.is_tensor(x) else torch.from_numpy(np.array(x))
         return self.forward(input.float()).detach().numpy()
     
-    def predict(self, data):
+    def predict(self, x):
         # Currently used by LIME
-        input = torch.squeeze(data) if torch.is_tensor(data) else torch.from_numpy(np.array(data))
+        input = torch.squeeze(x) if torch.is_tensor(x) else torch.from_numpy(np.array(x))
         return self.forward(input.float()).detach().numpy()
-    
-    def L_relu(self, data):
-        # Deprecated: used in stability experiments
-        return F.relu(self.input1(data))
