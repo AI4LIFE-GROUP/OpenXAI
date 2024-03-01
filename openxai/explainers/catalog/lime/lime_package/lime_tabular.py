@@ -19,7 +19,6 @@ from .discretize import DecileDiscretizer
 from .discretize import EntropyDiscretizer
 from .discretize import BaseDiscretizer
 from .discretize import StatsDiscretizer
-#from .discretize import CustomDiscretizer
 import lime.explanation as explanation
 import lime.lime_base as lime_base
 
@@ -227,11 +226,6 @@ class LimeTabularExplainer(object):
                         random_state=self.random_state)
             elif discretizer == 'ventile':
                 self.discretizer = VentileDiscretizer(
-                        training_data, self.categorical_features,
-                        self.feature_names, labels=training_labels,
-                        random_state=self.random_state)
-            elif discretizer == 'custom':
-                self.discretizer = CustomDiscretizer(
                         training_data, self.categorical_features,
                         self.feature_names, labels=training_labels,
                         random_state=self.random_state)
