@@ -12,7 +12,7 @@ class SmoothGrad(BaseExplainer):
     Captum documentation: https://captum.ai/api/noise_tunnel.html
     """
 
-    def __init__(self, model, n_samples: int = 500, standard_deviation: float = 0.1, seed = None) -> None:
+    def __init__(self, model, n_samples: int = 100, standard_deviation: float = 0.1, seed = None) -> None:
         """
         Args:
             model (torch.nn.Module): model on which to make predictions
