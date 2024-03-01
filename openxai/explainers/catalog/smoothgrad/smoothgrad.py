@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from ...api import BaseExplainer
 from captum.attr import NoiseTunnel
 from captum.attr import Saliency
@@ -11,7 +12,7 @@ class SmoothGrad(BaseExplainer):
     Captum documentation: https://captum.ai/api/noise_tunnel.html
     """
 
-    def __init__(self, model, n_samples: int = 500, standard_deviation: float = 0.5) -> None:
+    def __init__(self, model, n_samples: int = 500, standard_deviation: float = 0.1, seed = None) -> None:
         """
         Args:
             model (torch.nn.Module): model on which to make predictions
@@ -19,10 +20,11 @@ class SmoothGrad(BaseExplainer):
 
         self.n_samples = n_samples
         self.standard_deviation = standard_deviation
+        self.seed = seed
 
         super(SmoothGrad, self).__init__(model)
 
-    def get_explanation(self, x: torch.Tensor, label: torch.Tensor, attr_method=Saliency) -> torch.tensor:
+    def get_explanation(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
         """
         Explain an instance prediction.
         Args:
@@ -34,7 +36,10 @@ class SmoothGrad(BaseExplainer):
         self.model.eval()
         self.model.zero_grad()
 
-        noise_tunnel = NoiseTunnel(attr_method(self.model))
+        if self.seed is not None:
+            torch.manual_seed(self.seed); np.random.seed(self.seed)
+
+        noise_tunnel = NoiseTunnel(Saliency(self.model))
 
         attribution = noise_tunnel.attribute(x,
                                              nt_type='smoothgrad',

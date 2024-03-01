@@ -17,8 +17,10 @@ class LIME(BaseExplainer):
     mode : str, "tabular" or "images"
     """
 
-    def __init__(self, model, data: torch.FloatTensor, std, mode: str = "tabular", sample_around_instance: bool = True,
-                 kernel_width: float = 0.75, n_samples: int = 1000, discretize_continuous: bool = False) -> None:
+    def __init__(self, model, data: torch.FloatTensor, std,
+                 n_samples: int = 1000, kernel_width: float = 0.75,
+                 sample_around_instance: bool = True, mode: str = "tabular",
+                 discretize_continuous: bool = False, seed=None) -> None:
 
         self.output_dim = 2
         self.data = data.numpy()
@@ -27,6 +29,7 @@ class LIME(BaseExplainer):
         self.n_samples = n_samples
         self.discretize_continuous = discretize_continuous
         self.sample_around_instance = sample_around_instance
+        self.seed = seed
 
         if self.mode == "tabular":
             self.explainer = lime_tabular.LimeTabularExplainer(self.data,
@@ -44,6 +47,8 @@ class LIME(BaseExplainer):
 
     def get_explanation(self, all_data: torch.FloatTensor, label=None) -> torch.FloatTensor:
 
+        if self.seed is not None:
+            torch.manual_seed(self.seed); np.random.seed(self.seed)
         if self.mode == "tabular":
             all_data = all_data.numpy()
             num_features = all_data.shape[1]
