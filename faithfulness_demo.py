@@ -22,13 +22,13 @@ inputs, labels = next(iter(testloader))
 model = LoadModel(data_name=data_name, ml_model=model_name, pretrained=True)
 
 """### (3) Choose an explanation method"""
-method = 'grad'
+method = 'grad'  # one of ['grad', 'sg', 'itg', 'ig', 'shap', 'lime', 'control']
 explainer = Explainer(method=method, model=model,
                       dataset_tensor=torch.FloatTensor(trainloader.dataset.data),
                       param_dict=None) # None uses default hyperparams
 explanations = explainer.get_explanation(inputs.float(), label=labels.type(torch.int64))
 
-"""### (4) Choose an evaluation metric (see evaluate_metrics._set_kwargs for more details)"""
+"""### (4) Choose an evaluation metric (see evaluate_metrics._construct_kwargs for more details)"""
 metric = 'PGI'  # or PGU
 kwargs = {
     'explanations': explanations,  # update kwargs per explanation method
