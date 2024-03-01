@@ -10,8 +10,8 @@ from openxai.evaluator import Evaluator, ground_truth_metrics, prediction_metric
 from openxai.explainers.perturbation_methods import get_perturb_method
 
 
-def _set_kwargs(metric):
-    inputs = testloader.dataset.data[:n_test]
+def _construct_kwargs(metric):
+    # Compute necessary parameters
     feature_metadata = trainloader.dataset.feature_metadata
     explainer = Explainer(method, model, torch.FloatTensor(trainloader.dataset.data), param_dict=None)
     perturb_method = get_perturb_method(std, data_name)
@@ -48,9 +48,16 @@ def _set_kwargs(metric):
 
     # Ground Truth Metrics
     elif metric in ground_truth_metrics:
-        kwargs = {'explanations': explanations}
-        if metric not in ['PRA', 'RC']:
-            kwargs.update({'k': k})
+        if metric in ['FA', 'RA', 'SA', 'SRA']:
+            kwargs = {
+                'explanations': explanations,
+                'predictions': predictions,
+                'k': k
+            }
+        elif metric in ['PRA', 'RC']:
+            kwargs = {
+                'explanations': explanations,
+            }
 
     # Exception
     else:
@@ -93,7 +100,9 @@ if __name__ == '__main__':
         for data_name in data_names:
             start_time_data = time.time()
             model = LoadModel(data_name, model_name)
-            trainloader, testloader = return_loaders(data_name, batch_size=n_test)
+            trainloader, testloader = return_loaders(data_name)
+            inputs = testloader.dataset.data[:n_test]
+            predictions = model(inputs).argmax(-1)
             metrics_folder_name = f'metric_evals/{model_name}_{data_name}/'
             if not os.path.exists(metrics_folder_name):
                 os.makedirs(metrics_folder_name)
@@ -112,7 +121,7 @@ if __name__ == '__main__':
                     # Set kwargs
                     std = stability_std if metric in stability_metrics else prediction_std
                     num_samples = stability_num_samples if metric in stability_metrics else prediction_num_samples
-                    kwargs = _set_kwargs(metric)
+                    kwargs = _construct_kwargs(metric)
 
                     # Evaluate metric
                     evaluator = Evaluator(model, metric=metric)
