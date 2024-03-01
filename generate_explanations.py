@@ -25,7 +25,6 @@ def GenerateExplanations(methods, data_name, model_name, n_test_samples=100):
     # Compute explanations for each method
     explanations = {method: None for method in methods}
     for method in methods:
-        torch.manual_seed(0); np.random.seed(0)
         explainer = Explainer(method, model, dataset_tensor, param_dict=None)  # use default hyperparameters in openxai.explainer.py
         explanations[method] = explainer.get_explanation(inputs, preds)
     return explanations

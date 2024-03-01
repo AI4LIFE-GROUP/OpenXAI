@@ -7,18 +7,44 @@ from openxai.explainers import Gradient, IntegratedGradients,\
     InputTimesGradient, SmoothGrad, LIME, SHAPExplainerC, RandomBaseline
 
 explainers_dict = {
-    'grad': Gradient, 'sg': SmoothGrad, 'itg': InputTimesGradient, 'ig': IntegratedGradients,
-    'shap': SHAPExplainerC, 'lime': LIME, 'control': RandomBaseline
+    'grad': Gradient,
+    'sg': SmoothGrad,
+    'itg': InputTimesGradient,
+    'ig': IntegratedGradients,
+    'shap': SHAPExplainerC,
+    'lime': LIME,
+    'control': RandomBaseline
 }
 
 default_param_dicts = {
-    'grad': {'absolute_value': True},
-    'sg': {'n_samples': 100, 'standard_deviation': 0.005},
-    'ig': {'method': 'gausslegendre', 'multiply_by_inputs': False},
-    'shap': {'model_impl': 'torch', 'n_samples': 500},
-    'lime': {'kernel_width': 0.75, 'std': float(np.sqrt(0.03)), 'mode': 'tabular',
-             'sample_around_instance': True, 'n_samples': 20000, 'discretize_continuous': False},
-    'itg': {}, 'control': {}
+    'grad': {
+        'absolute_value': False
+    },
+    'sg': {
+        'n_samples': 500,
+        'standard_deviation': 0.1,
+        'seed': 0
+    },
+    'ig': {
+        'method': 'gausslegendre', 
+        'multiply_by_inputs': False
+    },
+    'shap': {
+        'n_samples': 500,
+        'model_impl': 'torch',
+        'seed': 0,
+    },
+    'lime': {
+        'n_samples': 1000,
+        'kernel_width': 0.75,
+        'std': 0.1,
+        'mode': 'tabular',
+        'sample_around_instance': True,
+        'discretize_continuous': False,
+        'seed': 0,
+    },
+    'itg': {},
+    'control': {}
 }
 
 def fill_param_dict(method, param_dict, dataset_tensor):
