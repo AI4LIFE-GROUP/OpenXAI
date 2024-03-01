@@ -8,11 +8,12 @@ class RandomBaseline(BaseExplainer):
     input and predictive model.
     """
 
-    def __init__(self, model) -> None:
+    def __init__(self, model, seed=None) -> None:
         """
         Args:
             model (torch.nn.Module): model on which to make predictions
         """
+        self.seed = seed
 
         super(RandomBaseline, self).__init__(model)
 
@@ -26,6 +27,8 @@ class RandomBaseline(BaseExplainer):
         Returns:
             exp (torch.Tensor, [N x 1 x d] for tabular instance; [N x m x n x d] for image instance: instance level explanation):
         """
+        if self.seed is not None:
+            torch.manual_seed(self.seed)
         attribution = torch.randn(size=x.shape)
 
         return attribution
