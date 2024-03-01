@@ -7,6 +7,22 @@ from functools import partialmethod
 
 tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
 
+def fill_param_dict(method, param_dict, dataset_tensor):
+    """
+    Fills in the dataset specific parameters for ig and lime
+    :param method: str, name of the method
+    :param param_dict: dict, parameter dictionary
+    :param dataset_tensor: torch.FloatTensor, dataset tensor
+    :return: dict, filled parameter dictionary
+    """
+    # Parameters requiring variables from IG and LIME 
+    if method == 'ig':
+        param_dict['baseline'] = torch.mean(dataset_tensor, dim=0).reshape(1, -1).float()
+    elif method == 'lime':
+        param_dict['data'] = dataset_tensor
+        
+    return param_dict
+
 def convert_to_numpy(x):
     """Converts input to numpy array."""
     if isinstance(x, torch.Tensor):
