@@ -4,6 +4,7 @@ from scipy.special import comb
 import pandas as pd
 import numpy as np
 import torch
+import warnings; warnings.filterwarnings("ignore")
 from tqdm import tqdm
 from joblib import Parallel, delayed
 from openxai.experiment_utils import\
@@ -73,8 +74,8 @@ def eval_ground_truth_faithfulness(explanations, ground_truth, predictions, k, m
     predictions = convert_to_numpy(predictions)
     if explanations.shape[0] != len(predictions):
         raise ValueError('Number of predictions must match number of explanations.')
-    ground_truth = (predictions*2-1)[:, None] * np.repeat(ground_truth.reshape(1, -1), len(predictions), axis=0)
-    explanations, ground_truths = _preprocess_attributions(explanations, ground_truth)
+    explanations, ground_truth = _preprocess_attributions(explanations, ground_truth)
+    ground_truths = (predictions*2-1)[:, None] * np.repeat(ground_truth.reshape(1, -1), len(predictions), axis=0)
     topk_idxs_df, topk_idxs_df_gt = _construct_topk_dfs(explanations, ground_truths, k, metric)
     if metric in ['overlap', 'sign']:  # FA, SA
         topk_sets = [set(list(row)) for row in topk_idxs_df.to_numpy()]
@@ -207,17 +208,15 @@ def _get_perturbation_explanations(model, input, explainer,
     y_prime_preds = torch.argmax(model(x_prime_samples.float()), dim=1)
     ind_same_class = (y_prime_preds == y_pred).nonzero()[: num_perturbations].squeeze()
     x_prime_samples = torch.index_select(input=x_prime_samples, dim=0, index=ind_same_class)
+    y_prime_samples = torch.index_select(input=y_prime_preds, dim=0, index=ind_same_class)
 
     # For each perturbation, calculate the explanation
-    exp_prime_samples = torch.zeros_like(x_prime_samples)
-    for it, x_prime in enumerate(x_prime_samples):
-        exp_prime_samples[it] = explainer.get_explanation(x_prime.reshape(1, -1).float(),
-                                                          label=y_prime_preds[it].type(torch.int64))
+    exp_prime_samples = convert_to_numpy(explainer.get_explanation(x_prime_samples, label=y_prime_samples))
     return x_prime_samples, exp_prime_samples, explanation
 
 # eval_pred_faithfulness
 def _single_pred_faith(i, input, explanation, model, k, perturb_method,
-                                         feature_metadata, num_samples, invert, seed):
+                       feature_metadata, num_samples, invert, seed):
     """
     Inner loop computation extracted from eval_pred_faithfulness to enable parallelization.
     """
@@ -238,7 +237,7 @@ def _single_pred_faith(i, input, explanation, model, k, perturb_method,
 
 # eval_relative_stability
 def _single_stability(i, input, explainer, model, perturb_method, feature_metadata,
-                                 metric, num_samples, num_perturbations, p_norm, seed):
+                      metric, num_samples, num_perturbations, p_norm, seed):
     """
     Inner loop computation extracted from eval_relative_stability to enable parallelization.
     """
