@@ -58,19 +58,24 @@ def rankcorr(explanations, ground_truth):
     return corrs_distr, np.mean(corrs_distr)
 
 # FA, RA, SA, SRA
-def eval_ground_truth_faithfulness(explanations, ground_truth, k, metric):
+def eval_ground_truth_faithfulness(explanations, ground_truth, predictions, k, metric):
     """
     Compute agreement fraction between top-k features of two explanations.
 
     :param explanations: np.array of shape (n_samples, n_features)
     :param ground_truth: np.array of shape (n_features,)
+    :param predictions: np.array of shape (n_samples,), since we invert the ground truth depending on the prediction we are explaining
     :param k: int, number of top-k features
     :param metric: str, 'overlap', 'rank', 'sign', or 'ranksign'
     :return: metric_distr: np.array of shape (n_samples,)
              mean_metric: float
     """
-    explanations, ground_truth = _preprocess_attributions(explanations, ground_truth)
-    topk_idxs_df, topk_idxs_df_gt = _construct_topk_dfs(explanations, ground_truth, k, metric)
+    predictions = convert_to_numpy(predictions)
+    if explanations.shape[0] != len(predictions):
+        raise ValueError('Number of predictions must match number of explanations.')
+    ground_truth = (predictions*2-1)[:, None] * np.repeat(ground_truth.reshape(1, -1), len(predictions), axis=0)
+    explanations, ground_truths = _preprocess_attributions(explanations, ground_truth)
+    topk_idxs_df, topk_idxs_df_gt = _construct_topk_dfs(explanations, ground_truths, k, metric)
     if metric in ['overlap', 'sign']:  # FA, SA
         topk_sets = [set(list(row)) for row in topk_idxs_df.to_numpy()]
         topk_sets_gt = set(list(topk_idxs_df_gt.to_numpy()[0]))
@@ -152,22 +157,21 @@ def eval_relative_stability(explainer, inputs, model, perturb_method, feature_me
 
 # ==== HELPER FUNCTIONS ==== #
 
-# pairwise_comp, rankcorr, eval_ground_truth_faithfulness
 def _preprocess_attributions(explanations, ground_truth):
-    """Preprocess explanations and ground truth for evaluation."""
+    """Convert to numpy and reshape (if necessary) for evaluation."""
     explanations, ground_truth = convert_to_numpy(explanations), convert_to_numpy(ground_truth)
     explanations = explanations.reshape(1, -1) if len(explanations.shape) == 1 else explanations
     return explanations, ground_truth
 
 # eval_ground_truth_faithfulness
-def _construct_topk_dfs(explanations, ground_truth, k, metric):
+def _construct_topk_dfs(explanations, ground_truths, k, metric):
     """
     Construct dataframes for top-k features of explanations and ground truth.
     Each dataframe contains the top-k feature idxs and, if applicable,
     the ranks and signs of the top-k features (useful for debugging also).
 
     :param explanations: np.array of shape (n_samples, n_features)
-    :param ground_truth: np.array of shape (n_features,)
+    :param ground_truths: np.array of shape (n_samples, n_features,), since we invert the ground truth depending on the prediction we are explaining
     :param k: int, number of top-k features
     :param metric: str, 'overlap', 'rank', 'sign', or 'ranksign'
     :return: topk_idxs_df: pd.DataFrame
@@ -175,8 +179,7 @@ def _construct_topk_dfs(explanations, ground_truth, k, metric):
     """
     if metric not in ['overlap', 'rank', 'sign', 'ranksign']:
         raise NotImplementedError("Please make sure that have chosen one of the following metrics: {overlap, rank, sign, ranksign}.")
-    ground_truth = ground_truth.reshape(1, -1)
-    attrs = [explanations, ground_truth]
+    attrs = [explanations, ground_truths]
 
     # Feature indices of top-k features (descending i.e. most important to least important)
     topk_idxs = [np.argsort(-np.abs(attr), axis=1)[:, :k] for attr in attrs]
