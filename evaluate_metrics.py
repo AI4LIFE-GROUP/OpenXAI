@@ -1,8 +1,18 @@
 
+# Utils
 import os
 import numpy as np
 import torch
 import time
+import warnings; warnings.filterwarnings("ignore")
+from openxai.experiment_utils import fill_param_dict
+
+# Default explainer parameters
+from generate_explanations import default_param_dicts
+explainer_param_strs = {method: '_'.join([f'{k}_{v}' for k, v in default_param_dicts[method].items()])\
+                        for method in default_param_dicts}
+
+# Models, Data, Explainers, and Evaluators
 from openxai.model import LoadModel
 from openxai.dataloader import return_loaders
 from openxai.explainer import Explainer
@@ -13,25 +23,26 @@ from openxai.explainers.perturbation_methods import get_perturb_method
 def _construct_kwargs(metric):
     # Compute necessary parameters
     feature_metadata = trainloader.dataset.feature_metadata
-    explainer = Explainer(method, model, torch.FloatTensor(trainloader.dataset.data), param_dict=None)
     perturb_method = get_perturb_method(std, data_name)
+
+    # Load explanations if necessary
     if metric not in stability_metrics:
-        file_name = f'explanations/{data_name}_{model_name}_{method}_{n_test}.npy'
+        param_str = '_' + explainer_param_strs[method] if explainer_param_strs[method] else ''
+        file_name = f'explanations/{data_name}_{model_name}_{method}_{n_test_samples}{param_str}.npy'
         explanations = np.load(file_name)
 
-    # Stability metrics
-    if metric in stability_metrics:
-        kwargs = {
-             'explainer': explainer,
-             'inputs': inputs,
-             'perturb_method': perturb_method,
-             'feature_metadata': feature_metadata,
-             'p_norm': p_norm,
-             'num_samples': stability_num_samples,
-             'num_perturbations': num_perturbations,
-             'seed': seed,
-             'n_jobs': n_jobs
-        }
+    # Ground Truth Metrics
+    if metric in ground_truth_metrics:
+        if metric in ['FA', 'RA', 'SA', 'SRA']:
+            kwargs = {
+                'explanations': explanations,
+                'predictions': predictions,
+                'k': k
+            }
+        elif metric in ['PRA', 'RC']:
+            kwargs = {
+                'explanations': explanations,
+            }
         
     # Prediction metrics
     elif metric in prediction_metrics:
@@ -46,18 +57,21 @@ def _construct_kwargs(metric):
             'n_jobs': n_jobs
         }
 
-    # Ground Truth Metrics
-    elif metric in ground_truth_metrics:
-        if metric in ['FA', 'RA', 'SA', 'SRA']:
-            kwargs = {
-                'explanations': explanations,
-                'predictions': predictions,
-                'k': k
-            }
-        elif metric in ['PRA', 'RC']:
-            kwargs = {
-                'explanations': explanations,
-            }
+    # Stability metrics
+    elif metric in stability_metrics:
+        dataset_tensor = torch.FloatTensor(trainloader.dataset.data)
+        param_dict = fill_param_dict(method, default_param_dicts[method], dataset_tensor)
+        kwargs = {
+             'explainer': Explainer(method, model, param_dict),
+             'inputs': inputs,
+             'perturb_method': perturb_method,
+             'feature_metadata': feature_metadata,
+             'p_norm': p_norm,
+             'num_samples': stability_num_samples,
+             'num_perturbations': num_perturbations,
+             'seed': seed,
+             'n_jobs': n_jobs
+        }
 
     # Exception
     else:
@@ -69,11 +83,11 @@ if __name__ == '__main__':
     model_names = ['lr', 'ann']
     data_names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima']
     methods = ['control', 'grad', 'ig', 'itg', 'sg', 'shap', 'lime']
-    n_test = 100
-    metrics = stability_metrics #+ ground_truth_metrics + prediction_metrics
-    seed = -1  # -1 to use instance index as seed for stability/perturbation metrics
+    n_test_samples = 1000
+    metrics = stability_metrics # + ground_truth_metrics + prediction_metrics
     k = 3 # Number of top features to consider for ground truth/prediction metrics
-    n_jobs = -1  # Number of parallel jobs for stability, -1 to use all available cores, None to disable parallelism
+    seed = -1  # -1 to use instance index as seed for stability/prediction metrics
+    n_jobs = -1  # Number of parallel jobs for stability/prediction metrics, -1 to use all available cores, None to disable parallelism
 
     # Ground Truth Parameters
     ground_truth_str = f'_k_{k}'
@@ -81,13 +95,13 @@ if __name__ == '__main__':
     # Prediction Parameters
     prediction_num_samples = 100
     prediction_std = 0.1
-    prediction_str = f'_std_{prediction_std})_n_samp_{prediction_num_samples}_k_{k}_seed_{seed}'
+    prediction_str = f'_std_{prediction_std}_n_samp_{prediction_num_samples}_k_{k}_seed_{seed}'
 
     # Stability Parameters
     p_norm = 2
     stability_num_samples = 1000
     num_perturbations = 100
-    stability_std = 0.1
+    stability_std = 1e-5
     stability_str = f'_std_{stability_std}_n_samp_{stability_num_samples}_n_pert_{num_perturbations}_p_{p_norm}_seed_{seed}'
 
     # Evaluation Loop
@@ -101,7 +115,7 @@ if __name__ == '__main__':
             start_time_data = time.time()
             model = LoadModel(data_name, model_name)
             trainloader, testloader = return_loaders(data_name)
-            inputs = testloader.dataset.data[:n_test]
+            inputs = torch.FloatTensor(testloader.dataset.data[:n_test_samples])
             predictions = model(inputs).argmax(-1)
             metrics_folder_name = f'metric_evals/{model_name}_{data_name}/'
             if not os.path.exists(metrics_folder_name):
@@ -115,9 +129,10 @@ if __name__ == '__main__':
 
                 # Evaluate metrics
                 for metric in metrics:
-                    if model_name == 'lr' and metric == 'RRS':
+                    if model_name == 'ann' and metric in ground_truth_metrics:
                         continue
-
+                    elif model_name == 'lr' and metric == 'RRS':
+                        continue
                     # Set kwargs
                     std = stability_std if metric in stability_metrics else prediction_std
                     num_samples = stability_num_samples if metric in stability_metrics else prediction_num_samples
@@ -141,5 +156,5 @@ if __name__ == '__main__':
                             param_str = ''
                         else:
                             param_str = ground_truth_str
-                    np.save(metrics_folder_name + f'{metric}_{method}_{n_test}{param_str}.npy', score)
+                    np.save(metrics_folder_name + f'{metric}_{method}_{n_test_samples}{param_str}.npy', score)
                     print()
