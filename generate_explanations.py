@@ -13,19 +13,21 @@ from openxai.dataloader import return_loaders
 from openxai.explainer import Explainer
 
 def GenerateExplanations(methods, data_name, model_name, n_test_samples=100):
-    # Get data and model
+    # Get data
     loader_train, loader_test = return_loaders(data_name=data_name, download=False)
-    inputs = torch.FloatTensor(loader_test.dataset.data[:n_test_samples])
-    labels = torch.LongTensor(loader_test.dataset.targets[:n_test_samples])
     dataset_tensor = torch.FloatTensor(loader_train.dataset.data)
+    inputs = torch.FloatTensor(loader_test.dataset.data[:n_test_samples])
+
+    # Load model and make predictions
     model = LoadModel(data_name, model_name, pretrained=True)
+    preds = model(inputs).argmax(dim=-1)
     
     # Compute explanations for each method
     explanations = {method: None for method in methods}
     for method in methods:
         torch.manual_seed(0); np.random.seed(0)
         explainer = Explainer(method, model, dataset_tensor, param_dict=None)  # use default hyperparameters in openxai.explainer.py
-        explanations[method] = explainer.get_explanation(inputs, labels)
+        explanations[method] = explainer.get_explanation(inputs, preds)
     return explanations
 
 if __name__ == '__main__':
