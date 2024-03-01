@@ -12,7 +12,7 @@ class LIME(BaseExplainer):
     This class gets explanations for tabular data. The explanations are generated according to Ribeiro et al's tabular
     sampling algorithm.
 
-    model : model object
+    model : model.predict function
     data : np array
     mode : str, "tabular" or "images"
     """
@@ -25,25 +25,25 @@ class LIME(BaseExplainer):
         self.output_dim = 2
         self.data = data.numpy()
         self.mode = mode
-        self.model = model
+        self.model = model.predict
         self.n_samples = n_samples
         self.discretize_continuous = discretize_continuous
         self.sample_around_instance = sample_around_instance
         self.seed = seed
 
         if self.mode == "tabular":
-            self.explainer = lime_tabular.LimeTabularExplainer(self.data,
-                                                                    mode="classification",
-                                                                    sample_around_instance=self.sample_around_instance,
-                                                                    discretize_continuous=self.discretize_continuous,
-                                                                    kernel_width=kernel_width * np.sqrt(
-                                                                        self.data.shape[1]),
-                                                                    std=std
-                                                                    )
+            self.explainer = lime_tabular.LimeTabularExplainer(
+                self.data,
+                mode="classification",
+                sample_around_instance=self.sample_around_instance,
+                discretize_continuous=self.discretize_continuous,
+                kernel_width=kernel_width * np.sqrt(self.data.shape[1]),
+                std=std
+            )
         else:
             self.explainer = lime_image.LimeImageExplainer()
 
-        super(LIME, self).__init__(model)
+        super(LIME, self).__init__(model.predict)
 
     def get_explanation(self, all_data: torch.FloatTensor, label=None) -> torch.FloatTensor:
 
