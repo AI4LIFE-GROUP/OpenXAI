@@ -79,8 +79,9 @@ def eval_ground_truth_faithfulness(explanations, ground_truth, predictions, k, m
     topk_idxs_df, topk_idxs_df_gt = _construct_topk_dfs(explanations, ground_truths, k, metric)
     if metric in ['overlap', 'sign']:  # FA, SA
         topk_sets = [set(list(row)) for row in topk_idxs_df.to_numpy()]
-        topk_sets_gt = set(list(topk_idxs_df_gt.to_numpy()[0]))
-        metric_distr = np.array([len(topk_set.intersection(topk_sets_gt))/k for topk_set in topk_sets])
+        topk_sets_gt = [set(list(row)) for row in topk_idxs_df_gt.to_numpy()]
+        metric_distr = np.array([len(topk_set.intersection(topk_set_gt))/k\
+                                 for topk_set, topk_set_gt in zip(topk_sets, topk_sets_gt)])
     elif metric in ['rank', 'ranksign']:  # RA, SRA
         metric_distr = (topk_idxs_df.to_numpy() == topk_idxs_df_gt.to_numpy()).sum(axis=1)/k
     return metric_distr, np.mean(metric_distr)
@@ -175,8 +176,7 @@ def _construct_topk_dfs(explanations, ground_truths, k, metric):
     :param ground_truths: np.array of shape (n_samples, n_features,), since we invert the ground truth depending on the prediction we are explaining
     :param k: int, number of top-k features
     :param metric: str, 'overlap', 'rank', 'sign', or 'ranksign'
-    :return: topk_idxs_df: pd.DataFrame
-             topk_idxs_df_gt: pd.DataFrame
+    :return: topk_idxs_dfs: size 2 list of pd.DataFrame of shape (n_samples, k)
     """
     if metric not in ['overlap', 'rank', 'sign', 'ranksign']:
         raise NotImplementedError("Please make sure that have chosen one of the following metrics: {overlap, rank, sign, ranksign}.")
