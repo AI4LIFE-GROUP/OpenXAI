@@ -124,7 +124,12 @@ if __name__ == '__main__':
             # Load explanations
             for method in methods:
                 now = time.time()
-                print(f"Model: {model_name}, Data: {data_name}, Explainer: {method} ({exp_num}/{num_exps}, {int(now - start_time)}s total, {int(now - start_time_model)}s on model, {int(now - start_time_data)}s on dataset)")
+                print(f"Model: {model_name},\
+                      Data: {data_name},\
+                      Explainer: {method} ({exp_num}/{num_exps},\
+                      {int(now - start_time)}s total,\
+                      {int(now - start_time_model)}s on model,\
+                      {int(now - start_time_data)}s on dataset)")
                 exp_num += 1
 
                 # Evaluate metrics
