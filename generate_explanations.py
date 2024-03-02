@@ -46,8 +46,10 @@ default_param_dicts = {
 }
 
 # Compute saved file names
-param_strs = {method: '_'.join([f'{k}_{v}' for k, v in default_param_dicts[method].items()])\
-              for method in default_param_dicts}
+param_strs = {}
+for method in default_param_dicts:
+    param_strs[method] = '_' + '_'.join([f'{k}_{v}' for k, v in default_param_dicts[method].items()]\
+                                        if default_param_dicts[method] else '')
 
 def GenerateExplanations(methods, data_name, model_name, n_test_samples):
     # Get data
@@ -65,8 +67,7 @@ def GenerateExplanations(methods, data_name, model_name, n_test_samples):
         param_dict = fill_param_dict(method, default_param_dicts[method], dataset_tensor)
         explainer = Explainer(method, model, param_dict)
         explanations = explainer.get_explanation(inputs, preds).detach().numpy()
-        param_str = '_' + param_strs[method] if param_strs[method] else ''
-        filename = f'explanations/{data_name}_{model_name}_{method}_{n_test_samples}{param_str}.npy'
+        filename = f'explanations/{data_name}_{model_name}_{method}_{n_test_samples}{param_strs[method]}.npy'
         np.save(filename.format(filename), explanations)
         del explanations  # free up memory
 
