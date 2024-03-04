@@ -8,15 +8,13 @@ metrics_dict = {
     'RA':  eval_ground_truth_faithfulness,
     'SA':  eval_ground_truth_faithfulness,
     'SRA': eval_ground_truth_faithfulness,
-    'PGI': eval_pred_faithfulness,
     'PGU': eval_pred_faithfulness,
+    'PGI': eval_pred_faithfulness,
     'RIS': eval_relative_stability,
     'RRS': eval_relative_stability,
     'ROS': eval_relative_stability
 }
 
-stability_params = {'p_norm': 2, 'num_samples': 1000, 'num_perturbations': 100, 'seed': -1, 'n_jobs': -1}
-prediction_params = {'num_samples': 100, 'seed': -1}
 metrics_params = {
     'PRA': {},
     'RC': {},
@@ -24,11 +22,11 @@ metrics_params = {
     'RA': {'metric': 'rank'},
     'SA': {'metric': 'sign'},
     'SRA': {'metric': 'ranksign'},
-    'PGU': {**{'invert': True}, **prediction_params},
-    'PGI': {**{'invert': False}, **prediction_params},
-    'RIS': {**{'metric': 'RIS'}, **stability_params},
-    'RRS': {**{'metric': 'RRS'}, **stability_params},
-    'ROS': {**{'metric': 'ROS'}, **stability_params}
+    'PGU': {'invert': True},
+    'PGI': {'invert': False},
+    'RIS': {'metric': 'RIS'},
+    'RRS': {'metric': 'RRS'},
+    'ROS': {'metric': 'ROS'}
 }
 
 ground_truth_metrics = ['PRA', 'RC', 'FA', 'RA', 'SA', 'SRA']
@@ -56,10 +54,8 @@ class Evaluator():
         # Set stability/prediction metric parameters
         if metric in stability_metrics + prediction_metrics:
             self.metrics_params['model'] = self.model
-            if metric in stability_metrics:
-                self.metrics_params['metric'] = metric
 
-    def evaluate(self, **kwargs):
+    def evaluate(self, **param_dict):
         """Explanation evaluation of a given metric"""
-        self.metrics_params.update(kwargs)  # update metric_params with args
+        self.metrics_params.update(param_dict)  # update metric_params with args
         return self.metric_fn(**self.metrics_params)

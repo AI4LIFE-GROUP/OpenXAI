@@ -1,165 +1,115 @@
 
 # Utils
-import os
 import numpy as np
-import torch
 import time
+import copy
 import warnings; warnings.filterwarnings("ignore")
-from openxai.experiment_utils import fill_param_dict
-
-# Default explainer parameters
-from generate_explanations import default_param_dicts
-explainer_param_strs = {method: '_'.join([f'{k}_{v}' for k, v in default_param_dicts[method].items()])\
-                        for method in default_param_dicts}
+import openxai.experiment_utils as utils
 
 # Models, Data, Explainers, and Evaluators
 from openxai.model import LoadModel
-from openxai.dataloader import return_loaders
+from openxai.dataloader import return_train_test_inputs
 from openxai.explainer import Explainer
 from openxai.evaluator import Evaluator, ground_truth_metrics, prediction_metrics, stability_metrics
 from openxai.explainers.perturbation_methods import get_perturb_method
 
-
-def _construct_kwargs(metric):
-    # Compute necessary parameters
-    feature_metadata = trainloader.dataset.feature_metadata
-    perturb_method = get_perturb_method(std, data_name)
-
-    # Load explanations if necessary
-    if metric not in stability_metrics:
-        param_str = '_' + explainer_param_strs[method] if explainer_param_strs[method] else ''
-        file_name = f'explanations/{data_name}_{model_name}_{method}_{n_test_samples}{param_str}.npy'
-        explanations = np.load(file_name)
-
-    # Ground Truth Metrics
+def _construct_param_dict(config, metric):
+    # Ground truth metrics PRA, RC, FA, SA, SRA
     if metric in ground_truth_metrics:
+        p_dict = copy.deepcopy(config['evaluators']['ground_truth_metrics'])
+        p_str = utils.construct_param_string(p_dict)
+        p_dict['explanations'] = utils.load_parameterized_file(\
+            f'explanations/{model_name}_{data_name}/{method}_{n_test_samples}', config['explainers'][method])
         if metric in ['FA', 'RA', 'SA', 'SRA']:
-            kwargs = {
-                'explanations': explanations,
-                'predictions': predictions,
-                'k': k
-            }
+            p_dict['predictions'] = predictions  # flips ground truth according to prediction
         elif metric in ['PRA', 'RC']:
-            kwargs = {
-                'explanations': explanations,
-            }
-        
-    # Prediction metrics
-    elif metric in prediction_metrics:
-        kwargs = {
-            'explanations': explanations,
-            'inputs': inputs,
-            'k': k,
-            'perturb_method': perturb_method,
-            'feature_metadata': feature_metadata,
-            'num_samples': prediction_num_samples,
-            'seed': seed,
-            'n_jobs': n_jobs
-        }
+            del p_dict['k'], p_dict['AUC']
+            p_str = ''
 
-    # Stability metrics
+    # Prediction metrics PGU, PGI
+    elif metric in prediction_metrics:
+        p_dict = copy.deepcopy(config['evaluators']['prediction_metrics'])
+        p_str = utils.construct_param_string(p_dict)
+        p_dict['inputs'] = X_test
+        p_dict['explanations'] = utils.load_parameterized_file(\
+            f'explanations/{model_name}_{data_name}/{method}_{n_test_samples}', config['explainers'][method])
+        p_dict['perturb_method'] = get_perturb_method(p_dict['std'], data_name)
+        p_dict['feature_metadata'] = feature_metadata
+        del p_dict['std']
+
+    # Stability metrics RIS, RRS, ROS
     elif metric in stability_metrics:
-        dataset_tensor = torch.FloatTensor(trainloader.dataset.data)
-        param_dict = fill_param_dict(method, default_param_dicts[method], dataset_tensor)
-        kwargs = {
-             'explainer': Explainer(method, model, param_dict),
-             'inputs': inputs,
-             'perturb_method': perturb_method,
-             'feature_metadata': feature_metadata,
-             'p_norm': p_norm,
-             'num_samples': stability_num_samples,
-             'num_perturbations': num_perturbations,
-             'seed': seed,
-             'n_jobs': n_jobs
-        }
+        exp_p_dict = utils.fill_param_dict(method, copy.deepcopy(config['explainers'][method]), X_train)
+        p_dict = copy.deepcopy(config['evaluators']['stability_metrics'])
+        p_str = utils.construct_param_string(p_dict)
+        p_dict['inputs'] = X_test
+        p_dict['explainer'] = Explainer(method, model, exp_p_dict)
+        p_dict['perturb_method'] = get_perturb_method(p_dict['std'], data_name)
+        p_dict['feature_metadata'] = feature_metadata
+        del p_dict['std']
 
     # Exception
     else:
         raise ValueError(f"Metric {metric} not recognized")
-    return kwargs
+    
+    return p_dict, p_str
 
 if __name__ == '__main__':
     # Configuration
-    model_names = ['lr', 'ann']
-    data_names = ['adult', 'compas', 'gaussian', 'german', 'gmsc', 'heart', 'heloc', 'pima']
-    methods = ['control', 'grad', 'ig', 'itg', 'sg', 'shap', 'lime']
-    n_test_samples = 1000
-    metrics = stability_metrics # + ground_truth_metrics + prediction_metrics
-    k = 3 # Number of top features to consider for ground truth/prediction metrics
-    seed = -1  # -1 to use instance index as seed for stability/prediction metrics
-    n_jobs = -1  # Number of parallel jobs for stability/prediction metrics, -1 to use all available cores, None to disable parallelism
-
-    # Ground Truth Parameters
-    ground_truth_str = f'_k_{k}'
-
-    # Prediction Parameters
-    prediction_num_samples = 100
-    prediction_std = 0.1
-    prediction_str = f'_std_{prediction_std}_n_samp_{prediction_num_samples}_k_{k}_seed_{seed}'
-
-    # Stability Parameters
-    p_norm = 2
-    stability_num_samples = 1000
-    num_perturbations = 100
-    stability_std = 1e-5
-    stability_str = f'_std_{stability_std}_n_samp_{stability_num_samples}_n_pert_{num_perturbations}_p_{p_norm}_seed_{seed}'
-
-    # Evaluation Loop
+    config = utils.load_config('experiment_config.json')
+    model_names, data_names = config['model_names'], config['data_names']
+    methods, metrics = config['methods'], config['metrics']
+    n_test_samples = config['n_test_samples']
+    
+    # Initialize trackers
     exp_num, num_exps = 1, len(model_names) * len(data_names) * len(methods)
     start_time = time.time()
+
+    # Loop over models
     for model_name in model_names:
         start_time_model = time.time()
 
-        # Load model and data
+        # Loop over datasets
         for data_name in data_names:
             start_time_data = time.time()
-            model = LoadModel(data_name, model_name)
-            trainloader, testloader = return_loaders(data_name)
-            inputs = torch.FloatTensor(testloader.dataset.data[:n_test_samples])
-            predictions = model(inputs).argmax(-1)
             metrics_folder_name = f'metric_evals/{model_name}_{data_name}/'
-            if not os.path.exists(metrics_folder_name):
-                os.makedirs(metrics_folder_name)
+            utils.make_directory(metrics_folder_name)
 
-            # Load explanations
+            # Load data and model
+            X_train, X_test, feature_metadata =\
+                return_train_test_inputs(data_name, n_test=n_test_samples, float_tensor=True,
+                                         return_feature_metadata=True)
+            model = LoadModel(data_name, model_name)
+            predictions = model(X_test).argmax(-1)
+
+            # Loop over explanation methods
             for method in methods:
+                # Initialize trackers
                 now = time.time()
-                print(f"Model: {model_name},\
-                      Data: {data_name},\
-                      Explainer: {method} ({exp_num}/{num_exps},\
-                      {int(now - start_time)}s total,\
-                      {int(now - start_time_model)}s on model,\
-                      {int(now - start_time_data)}s on dataset)")
+                print(f"Model: {model_name}, Data: {data_name}, Explainer: {method} ({exp_num}/{num_exps})"+\
+                      f"{int(now - start_time)}s total, {int(now - start_time_model)}s on model, {int(now - start_time_data)}s on dataset)")
                 exp_num += 1
 
-                # Evaluate metrics
+                # Loop over metrics
                 for metric in metrics:
-                    if model_name == 'ann' and metric in ground_truth_metrics:
+                    # Skip invalid combinations
+                    if utils.invalid_model_metric_combination(model_name, metric):
+                        print(f"Skipping {metric} for {model_name}")
                         continue
-                    elif model_name == 'lr' and metric == 'RRS':
-                        continue
-                    # Set kwargs
-                    std = stability_std if metric in stability_metrics else prediction_std
-                    num_samples = stability_num_samples if metric in stability_metrics else prediction_num_samples
-                    kwargs = _construct_kwargs(metric)
 
                     # Evaluate metric
                     evaluator = Evaluator(model, metric=metric)
-                    score, mean_score = evaluator.evaluate(**kwargs)
+                    param_dict, param_str = _construct_param_dict(config, metric)
+                    score, mean_score = evaluator.evaluate(**param_dict)
+
+                    # Print results
                     std_err = np.std(score) / np.sqrt(len(score))
-                    print(f"{metric}: {mean_score:.2f}\u00B1{std_err:.2f}")
                     if metric in stability_metrics:
+                        print(f"{metric}: {mean_score:.2s}\u00B1{std_err:.2s}")
                         print(f"log({metric}): {np.log(mean_score):.2f}\u00B1{np.log(std_err):.2f}")
+                    else:
+                        print(f"{metric}: {mean_score:.2f}\u00B1{std_err:.2f}")
 
                     # Save results
-                    if metric in stability_metrics:
-                        param_str = stability_str
-                    elif metric in prediction_metrics:
-                        param_str = prediction_str
-                    elif metric in ground_truth_metrics:
-                        if metric in ['PRA', 'RC']:
-                            param_str = ''
-                        else:
-                            param_str = ground_truth_str
                     np.save(metrics_folder_name + f'{metric}_{method}_{n_test_samples}{param_str}.npy', score)
                     print()
