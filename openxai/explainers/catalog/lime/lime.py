@@ -17,7 +17,7 @@ class LIME(BaseExplainer):
     mode : str, "tabular" or "images"
     """
 
-    def __init__(self, model, data: torch.FloatTensor, std,
+    def __init__(self, model, data: torch.FloatTensor, std: float = 0.1,
                  n_samples: int = 1000, kernel_width: float = 0.75,
                  sample_around_instance: bool = True, mode: str = "tabular",
                  discretize_continuous: bool = False, seed=None) -> None:
