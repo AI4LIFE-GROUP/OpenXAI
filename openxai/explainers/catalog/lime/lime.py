@@ -45,27 +45,22 @@ class LIME(BaseExplainer):
 
         super(LIME, self).__init__(model.predict)
 
-    def get_explanation(self, all_data: torch.FloatTensor, label=None) -> torch.FloatTensor:
+    def get_explanation(self, all_data: torch.FloatTensor, label) -> torch.FloatTensor:
 
         if self.seed is not None:
             torch.manual_seed(self.seed); np.random.seed(self.seed)
         if self.mode == "tabular":
             all_data = all_data.numpy()
             num_features = all_data.shape[1]
-            attribution_scores = [np.zeros(all_data.shape) for j in range(self.output_dim)]
-
+            attribution_scores = np.zeros(all_data.shape)
             for i in range(all_data.shape[0]):
                 exp = self.explainer.explain_instance(all_data[i, :], self.model,
                                                       num_samples=self.n_samples,
                                                       num_features=num_features)
-
                 # bring explanations into data order (since LIME automatically orders according to highest importance)
-                for j in range(self.output_dim):
-                    for k, v in exp.local_exp[1]:
-                        attribution_scores[j][i, k] = v
-
-            # we are explaining the the prob of 1; choosing [0] would explain P(y=0|x)
-            return torch.FloatTensor(attribution_scores[1])
+                for feature_idx, feature_attribution in exp.local_exp[1]:
+                    attribution_scores[i, feature_idx] = feature_attribution * (2*label[i]-1)
+            return torch.FloatTensor(attribution_scores)
         else:
             attribution_scores = []
             for i in range(all_data.shape[0]):
