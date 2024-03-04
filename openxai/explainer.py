@@ -12,7 +12,7 @@ explainers_dict = {
     'control': RandomBaseline
 }
 
-def Explainer(method, model, param_dict):
+def Explainer(method, model, param_dict={}):
     """
     Returns an explainer object for the given method
     :param method: str, name of the method
@@ -22,6 +22,9 @@ def Explainer(method, model, param_dict):
     """
     if method not in explainers_dict.keys():
         raise NotImplementedError("This method has not been implemented, yet.")
+    
+    if method in ['lime', 'ig'] and param_dict == {}:
+        raise ValueError(f"Please provide training data for {method} using openxai.experiment_utils.fill_param_dict({method}" + ", {}, X_train)")
     
     explainer = explainers_dict[method](model, **param_dict)
     return explainer
