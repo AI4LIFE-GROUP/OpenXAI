@@ -7,7 +7,7 @@
        "gmsc", "heart", "heloc", "pima"
     ],
     "methods": [
-        "lime"
+        "control", "grad", "ig", "itg", "sg", "shap", "lime"
     ],
     "metrics": [
         "PRA", "RC",
