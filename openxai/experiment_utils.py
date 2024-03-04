@@ -1,11 +1,83 @@
+import os
 import torch
 import numpy as np
 import joblib
 import contextlib
+import json
 from tqdm import tqdm
 from functools import partialmethod
 
 tqdm.__init__ = partialmethod(tqdm.__init__, disable=True)
+
+def convert_k_to_int(k, n_feat):
+    """
+    Return the range of k values to evaluate
+    :param k: int, float, or str
+        :setting k to -1 will evaluate all features
+        :setting k to a float will evaluate the top k% of features (rounded up)
+    :param n_feat: int, number of features
+    :return: int
+    """
+    if k == -1:
+        return n_feat
+    if not isinstance(k, int):
+        if isinstance(k, float):
+            if 0 < k < 1:
+                return np.ceil(k * n_feat).astype(int)
+            else:
+                raise ValueError(f'Float value for k {k} must be between 0 and 1')
+        else:
+            raise ValueError(f'Invalid type for k: {type(k)}')
+
+def load_parameterized_file(prefix, params, extension='.npy'):
+    """
+    Load a file with parameters in the file name
+    :param prefix: str, file path barring parameters and extension
+    :param params: dict, parameters
+    """
+    param_str = construct_param_string(params)
+    results = np.load(prefix + param_str + extension)
+    return results
+
+def make_directory(path):
+    """
+    Create a directory if it does not exist
+    :param path: str, path to the directory
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def construct_param_string(params):
+    """
+    Construct a string from a dictionary of parameters
+    :param params: dict
+    :return: str
+    """
+    param_str = '_' + '_'.join([f'{k}_{v}' for k, v in params.items()]) if params else ''
+    return param_str
+
+def invalid_model_metric_combination(model_name, metric):
+    """
+    Check if the model-metric combination is invalid
+    :param model_name: str, name of the model
+    :param metric: str, name of the metric
+    :return: bool
+    """
+    invalid_combinations = {
+        'ann': ['PRA', 'RC', 'FA', 'RA', 'SA', 'SRA'],
+        'lr': ['RRS']  # RRS == ROS for logistic regression
+    }
+    return metric in invalid_combinations[model_name]
+
+def load_config(config_path):
+    """
+    Loads the configuration file
+    :param config_path: str, path to the configuration file
+    :return: dict, configuration dictionary
+    """
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    return config
 
 def fill_param_dict(method, param_dict, dataset_tensor):
     """
