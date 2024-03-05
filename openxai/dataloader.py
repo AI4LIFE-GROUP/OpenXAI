@@ -41,7 +41,7 @@ class TabularDataLoader(data.Dataset):
         :return: tensor with training data
         """
         self.data_name, self.split = filename.split('.')[0].split('-')
-        if download:
+        if download or not os.path.isfile(path + filename):
             self.mkdir_p(path)
             r = requests.get(dataverse_prefix + dataverse_ids[self.split][self.data_name], allow_redirects=True)
             df = pd.read_csv(StringIO(r.text), sep='\t')
