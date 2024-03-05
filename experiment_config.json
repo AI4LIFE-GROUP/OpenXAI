@@ -12,6 +12,7 @@
     "metrics": [
         "PRA", "RC",
         "FA", "RA", "SA", "SRA",
+        "PGU", "PGI",
         "RIS", "RRS", "ROS"
     ],
     "n_test_samples": 1000,
