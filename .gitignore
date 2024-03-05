@@ -133,3 +133,6 @@ data/
 explanations/
 models/
 metric_evals/
+
+# Mac OS
+.DS_Store
