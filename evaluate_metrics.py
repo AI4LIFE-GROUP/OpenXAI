@@ -104,12 +104,10 @@ if __name__ == '__main__':
 
                     # Print results
                     std_err = np.std(score) / np.sqrt(len(score))
-                    print(f"{metric}: {mean_score:.2f}\u00B1{std_err:.2f}")
+                    print(f"{metric}: {mean_score:.3f} \u00B1 {std_err:.3f}")
                     if metric in stability_metrics:
                         log_mu, log_std = np.log(mean_score), np.log(std_err)
-                        print(f"log({metric}): {log_mu:.2f}\u00B1{log_std:.2f}")
-                    else:
-                        print(f"{metric}: {mean_score:.2f}\u00B1{std_err:.2f}")
+                        print(f"log({metric}): {log_mu:.3f} \u00B1 {log_std:.3f}")
 
                     # Save results
                     np.save(metrics_folder_name + f'{metric}_{method}_{n_test_samples}{param_str}.npy', score)
