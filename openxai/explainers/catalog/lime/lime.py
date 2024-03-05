@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from ...api import BaseExplainer
+from openxai.experiment_utils import convert_to_numpy
 
 # import lime
 from .lime_package import lime_tabular
@@ -46,6 +47,8 @@ class LIME(BaseExplainer):
         super(LIME, self).__init__(model.predict)
 
     def get_explanation(self, all_data: torch.FloatTensor, label) -> torch.FloatTensor:
+        label = convert_to_numpy(label)
+        label = np.repeat(label, all_data.shape[0]) if label.shape == () else label
 
         if self.seed is not None:
             torch.manual_seed(self.seed); np.random.seed(self.seed)
