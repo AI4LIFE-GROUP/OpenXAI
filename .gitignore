@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Results folders
+data/
+explanations/
+models/
+metric_evals/
