@@ -47,6 +47,7 @@ class LIME(BaseExplainer):
         super(LIME, self).__init__(model.predict)
 
     def get_explanation(self, all_data: torch.FloatTensor, label) -> torch.FloatTensor:
+        # Handling the case where the label is a single value
         label = convert_to_numpy(label)
         label = np.repeat(label, all_data.shape[0]) if label.shape == () else label
 
