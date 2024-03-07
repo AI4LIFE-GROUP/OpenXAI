@@ -17,7 +17,7 @@ class EBP(BaseExplainer):
         """
         super(EBP, self).__init__(model)
 
-    def get_explanations(self, x: torch.Tensor, label: torch.Tensor):
+    def get_explanations(self, x: torch.Tensor, label=None):
         """
         Explain an instance prediction.
         Args:
@@ -28,7 +28,9 @@ class EBP(BaseExplainer):
         """
         self.model.eval()
         self.model.zero_grad()
-        
+
+
+        label = self.model(x.float()).argmax(dim=-1) if label is None else label
         attribution = excitation_backprop(
             self.model,
             x,

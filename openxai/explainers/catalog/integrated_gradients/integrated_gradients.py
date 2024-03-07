@@ -21,7 +21,7 @@ class IntegratedGradients(BaseExplainer):
 
         super(IntegratedGradients, self).__init__(model)
 
-    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
+    def get_explanations(self, x: torch.Tensor, label=None):
         """
         Explain an instance prediction.
         Args:
@@ -32,6 +32,7 @@ class IntegratedGradients(BaseExplainer):
         """
         self.model.eval()
         self.model.zero_grad()
+        label = self.model(x.float()).argmax(dim=-1) if label is None else label
 
         ig = IG_Captum(self.model, self.multiply_by_inputs)
 

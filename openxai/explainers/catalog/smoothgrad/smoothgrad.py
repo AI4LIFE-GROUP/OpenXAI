@@ -24,7 +24,7 @@ class SmoothGrad(BaseExplainer):
 
         super(SmoothGrad, self).__init__(model)
 
-    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
+    def get_explanations(self, x: torch.Tensor, label=None):
         """
         Explain an instance prediction.
         Args:
@@ -35,6 +35,7 @@ class SmoothGrad(BaseExplainer):
         """
         self.model.eval()
         self.model.zero_grad()
+        label = self.model(x.float()).argmax(dim=-1) if label is None else label
 
         if self.seed is not None:
             torch.manual_seed(self.seed); np.random.seed(self.seed)

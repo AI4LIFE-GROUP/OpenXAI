@@ -17,7 +17,7 @@ class RandomBaseline(BaseExplainer):
 
         super(RandomBaseline, self).__init__(model)
 
-    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
+    def get_explanations(self, x: torch.Tensor, label=None) -> torch.tensor:
         """
         Returns a random standard normal vector of shape x.shape.
         

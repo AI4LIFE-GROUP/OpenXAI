@@ -16,7 +16,7 @@ class LRP(BaseExplainer):
         """
         super(LRP, self).__init__(model)
 
-    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
+    def get_explanations(self, x: torch.Tensor, label=None):
         """
         Explain an instance prediction.
         Args:
@@ -27,6 +27,7 @@ class LRP(BaseExplainer):
         """
         self.model.eval()
         self.model.zero_grad()
+        label = self.model(x.float()).argmax(dim=-1) if label is None else label
         
         lrp = LRP_Captum(self.model)
         

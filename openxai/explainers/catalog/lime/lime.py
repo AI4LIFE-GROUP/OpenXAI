@@ -46,19 +46,22 @@ class LIME(BaseExplainer):
 
         super(LIME, self).__init__(model.predict)
 
-    def get_explanations(self, all_data: torch.FloatTensor, label) -> torch.FloatTensor:
+    def get_explanations(self, x: torch.FloatTensor, label=None) -> torch.FloatTensor:
         # Handling the case where the label is a single value
-        label = convert_to_numpy(label)
-        label = np.repeat(label, all_data.shape[0]) if label.shape == () else label
+        if label is None:
+            label = self.model(x.float()).argmax(dim=-1).detach().numpy()
+        else:
+            label = convert_to_numpy(label)
+        label = np.repeat(label, x.shape[0]) if label.shape == () else label
 
         if self.seed is not None:
             torch.manual_seed(self.seed); np.random.seed(self.seed)
         if self.mode == "tabular":
-            all_data = all_data.numpy()
-            num_features = all_data.shape[1]
-            attribution_scores = np.zeros(all_data.shape)
-            for i in range(all_data.shape[0]):
-                exp = self.explainer.explain_instance(all_data[i, :], self.model,
+            x = x.numpy()
+            num_features = x.shape[1]
+            attribution_scores = np.zeros(x.shape)
+            for i in range(x.shape[0]):
+                exp = self.explainer.explain_instance(x[i, :], self.model,
                                                       num_samples=self.n_samples,
                                                       num_features=num_features)
                 # bring explanations into data order (since LIME automatically orders according to highest importance)
@@ -67,8 +70,8 @@ class LIME(BaseExplainer):
             return torch.FloatTensor(attribution_scores)
         else:
             attribution_scores = []
-            for i in range(all_data.shape[0]):
-                img = all_data  # .detach().numpy()
+            for i in range(x.shape[0]):
+                img = x  # .detach().numpy()
                 # img = np.transpose(img, (1, 2, 0)).astype('double')
 
                 # lime requires an image input size of (height, width, channels)

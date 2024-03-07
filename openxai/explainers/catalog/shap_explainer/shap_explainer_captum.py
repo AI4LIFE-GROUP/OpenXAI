@@ -27,15 +27,16 @@ class SHAPExplainerC(BaseExplainer):
     def forward_func_torch(self, input):
         return self.model(input)
 
-    def get_explanations(self, data_x: torch.FloatTensor, label) -> torch.FloatTensor:
+    def get_explanations(self, x: torch.FloatTensor, label=None) -> torch.FloatTensor:
         '''
-        Returns SHAP values as the explaination of the decision made for the input data (data_x)
-        :param data_x: data samples to explain decision for
-        :return: SHAP values [dim (shap_vals) == dim (data_x)]
+        Returns SHAP values as the explaination of the decision made for the input data (x)
+        :param x: data samples to explain decision for
+        :return: SHAP values [dim (shap_vals) == dim (x)]
         '''
+        label = self.model(x.float()).argmax(dim=-1) if label is None else label
         if self.seed is not None:
             torch.manual_seed(self.seed); np.random.seed(self.seed)
-        shap_vals = self.explainer.attribute(data_x, target=label, n_samples=self.n_samples)
+        shap_vals = self.explainer.attribute(x.float(), target=label, n_samples=self.n_samples)
         return torch.FloatTensor(shap_vals)
 
 
