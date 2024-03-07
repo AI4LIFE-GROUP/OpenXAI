@@ -87,11 +87,11 @@ class LogisticRegression(nn.Module):
         :return: numpy array of predictions
         """
         if not torch.is_tensor(data):
-            input = torch.from_numpy(np.array(data)).float()
+            input = torch.from_numpy(np.array(data))
         else:
-            input = torch.squeeze(data).float()
+            input = torch.squeeze(data)
             
-        output = self.forward(input).detach().numpy()
+        output = self.forward(input.float()).detach().numpy()
 
         return output.argmax(axis=-1) if argmax else output
 
