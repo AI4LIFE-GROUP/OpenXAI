@@ -80,7 +80,7 @@ class LogisticRegression(nn.Module):
     def predict_with_logits(self, x):
         return self.linear(x)
     
-    def predict(self, data):
+    def predict(self, data, argmax=False):
         """
         Predict method required for CFE-Models
         :param data: torch or list
@@ -93,7 +93,7 @@ class LogisticRegression(nn.Module):
             
         output = self.forward(input).detach().numpy()
 
-        return output
+        return output.argmax(axis=-1) if argmax else output
 
 class ArtificialNeuralNetwork(nn.Module):
     def __init__(self, input_dim, hidden_layers, n_class = 2, activation = 'relu'):
@@ -141,10 +141,11 @@ class ArtificialNeuralNetwork(nn.Module):
         input = x if torch.is_tensor(x) else torch.from_numpy(np.array(x))
         return self.forward(input.float()).detach().numpy()
     
-    def predict(self, x):
+    def predict(self, x, argmax=False):
         # Currently used by LIME
         input = torch.squeeze(x) if torch.is_tensor(x) else torch.from_numpy(np.array(x))
-        return self.forward(input.float()).detach().numpy()
+        output = self.forward(input.float()).detach().numpy()
+        return output.argmax(axis=-1) if argmax else output
 
 def train_model(model_name, dataset, learning_rate, epochs, batch_size, scaler='minmax', seed=0,
                 pos_class_weight=0.5, mean_prediction_bound=1.0, warmup=5, verbose=False):
