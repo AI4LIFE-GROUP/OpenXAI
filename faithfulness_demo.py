@@ -4,7 +4,7 @@ import numpy as np
 
 # Models, Data, Explainers, and Evaluators
 from openxai.model import LoadModel
-from openxai.dataloader import return_loaders
+from openxai.dataloader import ReturnLoaders
 from openxai.explainer import Explainer
 from openxai.evaluator import Evaluator, stability_metrics
 from openxai.explainers.perturbation_methods import get_perturb_method
@@ -15,7 +15,7 @@ model_name = 'lr'  # one of ['lr', 'ann']
 n_test = 10
 
 """### (1) Data Loaders"""
-trainloader, testloader = return_loaders(data_name=data_name, download=True, batch_size=n_test)
+trainloader, testloader = ReturnLoaders(data_name=data_name, download=True, batch_size=n_test)
 inputs, labels = next(iter(testloader))
 
 """### (2) Load a pretrained ML model"""

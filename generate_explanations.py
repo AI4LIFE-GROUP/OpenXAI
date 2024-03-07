@@ -7,7 +7,7 @@ import openxai.experiment_utils as utils
 
 # Models, Data, and Explainers
 from openxai.model import LoadModel
-from openxai.dataloader import return_train_test_inputs
+from openxai.dataloader import ReturnTrainTestX
 from openxai.explainer import Explainer
 
 if __name__ == '__main__':
@@ -25,7 +25,7 @@ if __name__ == '__main__':
             folder_name = f'explanations/{model_name}_{data_name}'
             utils.make_directory(folder_name)
             print(f"Data: {data_name}, Model: {model_name}")
-            X_train, X_test = return_train_test_inputs(data_name, n_test=n_test_samples, float_tensor=True)
+            X_train, X_test = ReturnTrainTestX(data_name, n_test=n_test_samples, float_tensor=True)
             model = LoadModel(data_name, model_name, pretrained=True)
             predictions = model(X_test).argmax(dim=-1)
 

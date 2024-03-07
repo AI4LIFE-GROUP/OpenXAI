@@ -8,7 +8,7 @@ import openxai.experiment_utils as utils
 
 # Models, Data, Explainers, and Evaluators
 from openxai.model import LoadModel
-from openxai.dataloader import return_train_test_inputs
+from openxai.dataloader import ReturnTrainTestX
 from openxai.explainer import Explainer
 from openxai.evaluator import Evaluator, ground_truth_metrics, prediction_metrics, stability_metrics
 from openxai.explainers.perturbation_methods import get_perturb_method
@@ -77,8 +77,8 @@ if __name__ == '__main__':
 
             # Load data and model
             X_train, X_test, feature_metadata =\
-                return_train_test_inputs(data_name, n_test=n_test_samples, float_tensor=True,
-                                         return_feature_metadata=True)
+                ReturnTrainTestX(data_name, n_test=n_test_samples, float_tensor=True,
+                                 return_feature_metadata=True)
             model = LoadModel(data_name, model_name)
             predictions = model(X_test).argmax(-1)
 

@@ -108,7 +108,7 @@ class TabularDataLoader(data.Dataset):
                 raise 
 
 
-def return_loaders(data_name, download=False, batch_size=32, scaler='minmax'):
+def ReturnLoaders(data_name, download=False, batch_size=32, scaler='minmax'):
     """
     Load training and test datasets as DataLoader objects
     :param data_name: string with name of dataset
@@ -132,7 +132,7 @@ def return_loaders(data_name, download=False, batch_size=32, scaler='minmax'):
     
     return trainloader, testloader
 
-def return_train_test_inputs(data_name, n_test=None, n_train=None, download=False,
+def ReturnTrainTestX(data_name, n_test=None, n_train=None, download=False,
                              float_tensor=False, return_feature_metadata=False):
     """
     Load training and test datasets as DataLoader objects
@@ -144,7 +144,7 @@ def return_train_test_inputs(data_name, n_test=None, n_train=None, download=Fals
     :param return_feature_metadata: boolean, whether to return feature metadata
     :return: tuple with training and test inputs (optionally feature metadata)
     """
-    trainloader, testloader = return_loaders(data_name, download=download)
+    trainloader, testloader = ReturnLoaders(data_name, download=download)
     X_test = testloader.dataset.data[:n_test] if n_test is not None else testloader.dataset.data
     X_train = trainloader.dataset.data[:n_train] if n_train is not None else trainloader.dataset.data
     if float_tensor:

@@ -6,7 +6,7 @@ import os
 import copy
 import requests
 from sklearn.metrics import f1_score, accuracy_score
-from openxai.dataloader import return_loaders
+from openxai.dataloader import ReturnLoaders
 from openxai.experiment_utils import print_summary
 
 activation_functions = {'relu': nn.ReLU(), 'leaky_relu': nn.LeakyReLU(),
@@ -167,7 +167,7 @@ def train_model(model_name, dataset, learning_rate, epochs, batch_size, scaler='
     file_path = f'./data/{dataset}/{dataset}'
     all_splits_downloaded = os.path.exists(file_path+'-train.csv') and os.path.exists(file_path+'-test.csv')
     download = False if all_splits_downloaded else True
-    trainloader, testloader = return_loaders(dataset, download, batch_size, scaler)
+    trainloader, testloader = ReturnLoaders(dataset, download, batch_size, scaler)
     input_size = trainloader.dataset.data.shape[-1]
     loaders = {'train': trainloader, 'test': testloader}
 
