@@ -24,7 +24,7 @@ def Explainer(method, model, param_dict={}):
         raise NotImplementedError("This method has not been implemented, yet.")
     
     if method in ['lime', 'ig'] and param_dict == {}:
-        raise ValueError(f"Please provide training data for {method} using openxai.experiment_utils.fill_param_dict('{method}'" + ", {}, X_train)")
+        raise ValueError(f"Please provide training data for {method} using param_dict = openxai.experiment_utils.fill_param_dict('{method}'" + ", {}, X_train)")
     
     explainer = explainers_dict[method](model, **param_dict)
     return explainer
