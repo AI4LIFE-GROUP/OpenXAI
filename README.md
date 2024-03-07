@@ -65,7 +65,7 @@ All the explanation methods included in OpenXAI are readily accessible through t
 ```python
 from openxai import Explainer
 exp_method = Explainer(method='lime', model=model, dataset_tensor=inputs)
-explanations= exp_method.get_explanation(inputs, labels)
+explanations= exp_method.get_explanations(inputs, labels)
 ```
 
 Users can then submit a request to incorporate their custom methods into OpenXAI library by filling a form and providing the GitHub link to their code as well as a summary of their explanation method.

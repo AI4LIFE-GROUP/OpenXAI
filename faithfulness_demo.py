@@ -26,7 +26,7 @@ method = 'grad'  # one of ['grad', 'sg', 'itg', 'ig', 'shap', 'lime', 'control']
 explainer = Explainer(method=method, model=model,
                       dataset_tensor=torch.FloatTensor(trainloader.dataset.data),
                       param_dict=None) # None uses default hyperparams
-explanations = explainer.get_explanation(inputs.float(), label=labels.type(torch.int64))
+explanations = explainer.get_explanations(inputs.float(), label=labels.type(torch.int64))
 
 """### (4) Choose an evaluation metric (see evaluate_metrics._construct_kwargs for more details)"""
 metric = 'PGI'  # or PGU

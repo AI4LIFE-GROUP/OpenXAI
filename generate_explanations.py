@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
                 # Compute explanations
                 explainer = Explainer(method, model, param_dict)
-                explanations = explainer.get_explanation(X_test, predictions).detach().numpy()
+                explanations = explainer.get_explanations(X_test, predictions).detach().numpy()
 
                 # Save explanations
                 filename = f'explanations/{model_name}_{data_name}/{method}_{n_test_samples}{param_strs[method]}.npy'

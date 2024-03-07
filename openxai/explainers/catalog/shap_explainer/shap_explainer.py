@@ -31,7 +31,7 @@ class SHAPExplainer(BaseExplainer):
         elif self.domain == 'deep':
             self.explainer = shap.DeepExplainer(self.model[0], self.data)
 
-    def get_explanation(self, data_x: torch.FloatTensor, label = None) -> torch.FloatTensor:
+    def get_explanations(self, data_x: torch.FloatTensor, label = None) -> torch.FloatTensor:
         '''
         Returns SHAP values as the explaination of the decision made for the input data (data_x)
         :param data_x: data samples to explain decision for

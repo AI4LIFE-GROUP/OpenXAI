@@ -17,7 +17,7 @@ class EBP(BaseExplainer):
         """
         super(EBP, self).__init__(model)
 
-    def get_explanation(self, x: torch.Tensor, label: torch.Tensor):
+    def get_explanations(self, x: torch.Tensor, label: torch.Tensor):
         """
         Explain an instance prediction.
         Args:

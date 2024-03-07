@@ -27,7 +27,7 @@ class SHAPExplainerC(BaseExplainer):
     def forward_func_torch(self, input):
         return self.model(input)
 
-    def get_explanation(self, data_x: torch.FloatTensor, label) -> torch.FloatTensor:
+    def get_explanations(self, data_x: torch.FloatTensor, label) -> torch.FloatTensor:
         '''
         Returns SHAP values as the explaination of the decision made for the input data (data_x)
         :param data_x: data samples to explain decision for

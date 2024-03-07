@@ -19,7 +19,7 @@ class Gradient(BaseExplainer):
 
         super(Gradient, self).__init__(model)
 
-    def get_explanation(self, x: torch.Tensor, label: torch.Tensor) -> torch:
+    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch:
         """
         Explain an instance prediction.
         Args:

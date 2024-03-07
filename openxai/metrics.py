@@ -201,7 +201,7 @@ def _get_perturbation_explanations(model, input, explainer,
                                    perturb_method, n_samples,
                                    feature_metadata, n_perturbations):
     y_pred = torch.argmax(model(input.float()), dim=1)[0]
-    explanation = explainer.get_explanation(input.float(), label=y_pred)
+    explanation = explainer.get_explanations(input.float(), label=y_pred)
     # Get perturbations of the input that have the same prediction
     x_prime_samples = perturb_method.get_perturbed_inputs(original_sample=input[0].float(),
                                                           feature_mask=torch.zeros(input.shape[-1], dtype=bool),
@@ -213,7 +213,7 @@ def _get_perturbation_explanations(model, input, explainer,
     y_prime_samples = torch.index_select(input=y_prime_preds, dim=0, index=ind_same_class)
 
     # For each perturbation, calculate the explanation
-    exp_prime_samples = utils.convert_to_numpy(explainer.get_explanation(x_prime_samples, label=y_prime_samples))
+    exp_prime_samples = utils.convert_to_numpy(explainer.get_explanations(x_prime_samples, label=y_prime_samples))
     return x_prime_samples, exp_prime_samples, explanation
 
 # eval_ground_truth_faithfulness

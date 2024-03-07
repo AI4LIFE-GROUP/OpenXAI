@@ -21,7 +21,7 @@ class IntegratedGradients(BaseExplainer):
 
         super(IntegratedGradients, self).__init__(model)
 
-    def get_explanation(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
+    def get_explanations(self, x: torch.Tensor, label: torch.Tensor) -> torch.tensor:
         """
         Explain an instance prediction.
         Args:

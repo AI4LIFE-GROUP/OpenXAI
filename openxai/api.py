@@ -97,7 +97,7 @@ class OpenXAI(object):
             assert X_scaled.size() == X_raw.size()
 
         X = X_scaled
-        attribution = self.explainer.get_explanation(X.to(dtype=torch.float32),
+        attribution = self.explainer.get_explanations(X.to(dtype=torch.float32),
                                                      y)
         output = self.model(X.to(dtype=torch.float32))
         prediction = torch.argmax(output, dim=1)
