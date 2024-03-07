@@ -89,7 +89,7 @@ class LogisticRegression(nn.Module):
         if not torch.is_tensor(data):
             input = torch.from_numpy(np.array(data)).float()
         else:
-            input = torch.squeeze(data)
+            input = torch.squeeze(data).float()
             
         output = self.forward(input).detach().numpy()
 
