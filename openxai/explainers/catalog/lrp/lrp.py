@@ -31,6 +31,6 @@ class LRP(BaseExplainer):
         
         lrp = LRP_Captum(self.model)
         
-        attribution = lrp.attribute(x, target=label)
+        attribution = lrp.attribute(x.float(), target=label)
 
         return attribution

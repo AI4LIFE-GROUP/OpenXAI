@@ -32,6 +32,6 @@ class InputTimesGradient(BaseExplainer):
 
         input_x_gradient = InputXGradient_Captum(self.model)
 
-        attribution = input_x_gradient.attribute(x, target=label)
+        attribution = input_x_gradient.attribute(x.float(), target=label)
 
         return attribution

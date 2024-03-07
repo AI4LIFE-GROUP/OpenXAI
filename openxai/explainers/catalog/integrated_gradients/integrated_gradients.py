@@ -36,6 +36,6 @@ class IntegratedGradients(BaseExplainer):
 
         ig = IG_Captum(self.model, self.multiply_by_inputs)
 
-        attribution = ig.attribute(x, target=label, method=self.method, baselines=self.baseline)
+        attribution = ig.attribute(x.float(), target=label, method=self.method, baselines=self.baseline)
 
         return attribution

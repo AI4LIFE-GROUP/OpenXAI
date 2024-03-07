@@ -33,7 +33,7 @@ class EBP(BaseExplainer):
         label = self.model(x.float()).argmax(dim=-1) if label is None else label
         attribution = excitation_backprop(
             self.model,
-            x,
+            x.float(),
             label
         )
 

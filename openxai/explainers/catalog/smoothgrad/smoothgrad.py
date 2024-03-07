@@ -42,7 +42,7 @@ class SmoothGrad(BaseExplainer):
 
         noise_tunnel = NoiseTunnel(Saliency(self.model))
 
-        attribution = noise_tunnel.attribute(x,
+        attribution = noise_tunnel.attribute(x.float(),
                                              nt_type='smoothgrad',
                                              target=label,
                                              nt_samples=self.n_samples,

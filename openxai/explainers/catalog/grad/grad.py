@@ -35,6 +35,6 @@ class Gradient(BaseExplainer):
 
         saliency = Gradient_Captum(self.model)
 
-        attribution = saliency.attribute(x, target=label, abs=self.abs)
+        attribution = saliency.attribute(x.float(), target=label, abs=self.abs)
 
         return attribution
