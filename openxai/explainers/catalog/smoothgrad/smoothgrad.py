@@ -46,6 +46,7 @@ class SmoothGrad(BaseExplainer):
                                              nt_type='smoothgrad',
                                              target=label,
                                              nt_samples=self.n_samples,
-                                             stdevs=self.standard_deviation)
+                                             stdevs=self.standard_deviation,
+                                             abs=False)
 
         return attribution
