@@ -64,8 +64,8 @@ All the explanation methods included in OpenXAI are readily accessible through t
 
 ```python
 from openxai import Explainer
-exp_method = Explainer(method='lime', model=model, dataset_tensor=inputs)
-explanations= exp_method.get_explanations(inputs, labels)
+exp_method = Explainer(method='lime', model=model)
+explanations= exp_method.get_explanations(inputs)
 ```
 
 Users can then submit a request to incorporate their custom methods into OpenXAI library by filling a form and providing the GitHub link to their code as well as a summary of their explanation method.
@@ -76,8 +76,8 @@ Benchmarking an explanation method using evaluation metrics is quite simple and 
 
 ```python
 from openxai import Evaluator
-metric_evaluator = Evaluator(input_dict, inputs, labels, model, exp_method)
-score = metric_evaluator.evaluate(metric='RIS')
+metric_evaluator = Evaluator(model, metric='PGI')
+score = metric_evaluator.evaluate(**kwargs)
 ```
 
 ### OpenXAI Metrics
